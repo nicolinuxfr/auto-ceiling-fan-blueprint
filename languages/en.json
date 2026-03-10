@@ -1,0 +1,72 @@
+{
+  "blueprint.name": "Auto Ceiling Fan Controller",
+  "blueprint.description": "This blueprint automatically controls a ceiling fan based on the temperature difference between the ceiling and the ambient temperature. Without an AC mode entity, it determines the rotation direction based on the season (northern hemisphere). It supports heating and cooling modes with configurable speed thresholds.",
+  "blueprint.version.line": "Version: {version}",
+
+  "input.fan_entity.name": "Fan to control",
+  "input.fan_entity.description": "The ceiling fan entity to control with this automation.",
+
+  "input.temperature_sources.name": "Temperature sources",
+
+  "input.temp_group.name": "Temperature group (min_max)",
+  "input.temp_group.description": "A min_max sensor group that provides max_value (ceiling) and min_value (ambient). If provided, this takes priority over the two separate sensors below.",
+
+  "input.temp_sensor_high.name": "Ceiling temperature sensor",
+  "input.temp_sensor_high.description": "Temperature sensor placed near the ceiling. Used only if no group is configured above.",
+
+  "input.temp_sensor_low.name": "Ambient temperature sensor",
+  "input.temp_sensor_low.description": "Ambient temperature sensor (room level). Used only if no group is configured above.",
+
+  "input.climate_control.name": "AC mode control",
+
+  "input.ac_mode_selector.name": "AC mode entity (optional)",
+  "input.ac_mode_selector.description": "An input_select indicating the current AC mode (Heating / Cooling / Off). If not set, the rotation direction is determined automatically by season (northern hemisphere: November–March = reverse, April–October = forward).",
+
+  "input.ac_state_heating.name": "Heating state value",
+  "input.ac_state_heating.description": "The exact input_select value indicating heating mode. The fan rotates in reverse.",
+
+  "input.ac_state_cooling.name": "Cooling state value",
+  "input.ac_state_cooling.description": "The exact input_select value indicating cooling mode. The fan rotates forward.",
+
+  "input.ac_state_off.name": "Off state value",
+  "input.ac_state_off.description": "The exact input_select value indicating the system is off. The fan stops regardless of the temperature delta.",
+
+  "input.threshold_settings.name": "Temperature thresholds",
+
+  "input.threshold_stop.name": "Stop threshold",
+  "input.threshold_stop.description": "The fan turns off when the temperature delta falls below this value.",
+
+  "input.threshold_start_normal.name": "Normal start threshold",
+  "input.threshold_start_normal.description": "The fan starts at medium speed when the delta exceeds this value (silent mode off).",
+
+  "input.threshold_start_silent.name": "Silent start threshold",
+  "input.threshold_start_silent.description": "The fan starts at medium speed when the delta exceeds this value (silent mode active).",
+
+  "input.threshold_high.name": "High speed threshold",
+  "input.threshold_high.description": "The fan runs at high speed when the delta exceeds this value.",
+
+  "input.speed_settings.name": "Fan speeds",
+
+  "input.speed_low.name": "Low speed",
+  "input.speed_low.description": "Fan percentage used in the hysteresis zone (between stop and start thresholds).",
+
+  "input.speed_medium.name": "Medium speed",
+  "input.speed_medium.description": "Fan percentage used in normal running conditions.",
+
+  "input.speed_high.name": "High speed",
+  "input.speed_high.description": "Fan percentage used when the delta exceeds the high speed threshold.",
+
+  "input.silent_mode_section.name": "Silent mode",
+
+  "input.silent_mode_entity.name": "Silent mode entity",
+  "input.silent_mode_entity.description": "An input_boolean or binary_sensor that enables silent mode (e.g. TV on). When active, the fan only starts when the delta exceeds the silent start threshold. Leave empty to disable.",
+
+  "trigger.temp_group.alias": "Temperature group changed",
+  "trigger.temp_sensor_high.alias": "Ceiling sensor changed",
+  "trigger.temp_sensor_low.alias": "Ambient sensor changed",
+  "trigger.climate.alias": "AC mode changed",
+  "trigger.silent_mode.alias": "Silent mode changed",
+  "trigger.tick.alias": "Periodic re-evaluation (every 5 minutes)",
+
+  "condition.delta_available.alias": "Temperature delta is available"
+}

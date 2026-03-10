@@ -1,0 +1,366 @@
+blueprint:
+  name: "[[blueprint.name]] ([[blueprint.version]])"
+  description: |-
+    [[blueprint.description]]
+
+    [[blueprint.version.line]] — [Changelog](https://github.com/nicolinuxfr/auto-ceiling-fan-blueprint/blob/main/CHANGELOG.md#[[blueprint.version.nodots]])
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+  input:
+    fan_entity:
+      name: [[input.fan_entity.name]]
+      description: [[input.fan_entity.description]]
+      selector:
+        entity:
+          domain: fan
+
+    temperature_sources:
+      name: [[input.temperature_sources.name]]
+      icon: mdi:thermometer
+      input:
+        temp_group:
+          name: [[input.temp_group.name]]
+          description: [[input.temp_group.description]]
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: temperature
+
+        temp_sensor_high:
+          name: [[input.temp_sensor_high.name]]
+          description: [[input.temp_sensor_high.description]]
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: temperature
+
+        temp_sensor_low:
+          name: [[input.temp_sensor_low.name]]
+          description: [[input.temp_sensor_low.description]]
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: temperature
+
+    climate_control:
+      name: [[input.climate_control.name]]
+      icon: mdi:air-conditioner
+      collapsed: true
+      input:
+        ac_mode_selector:
+          name: [[input.ac_mode_selector.name]]
+          description: [[input.ac_mode_selector.description]]
+          default: ""
+          selector:
+            entity:
+              domain: input_select
+
+        ac_state_heating:
+          name: [[input.ac_state_heating.name]]
+          description: [[input.ac_state_heating.description]]
+          default: "Chauffage"
+          selector:
+            text:
+
+        ac_state_cooling:
+          name: [[input.ac_state_cooling.name]]
+          description: [[input.ac_state_cooling.description]]
+          default: "Climatisation"
+          selector:
+            text:
+
+        ac_state_off:
+          name: [[input.ac_state_off.name]]
+          description: [[input.ac_state_off.description]]
+          default: "Éteint"
+          selector:
+            text:
+
+    threshold_settings:
+      name: [[input.threshold_settings.name]]
+      icon: mdi:tune
+      collapsed: true
+      input:
+        threshold_stop:
+          name: [[input.threshold_stop.name]]
+          description: [[input.threshold_stop.description]]
+          default: 0.8
+          selector:
+            number:
+              min: 0.0
+              max: 5.0
+              step: 0.1
+              mode: box
+              unit_of_measurement: "°C"
+
+        threshold_start_normal:
+          name: [[input.threshold_start_normal.name]]
+          description: [[input.threshold_start_normal.description]]
+          default: 2.0
+          selector:
+            number:
+              min: 0.0
+              max: 10.0
+              step: 0.1
+              mode: box
+              unit_of_measurement: "°C"
+
+        threshold_start_silent:
+          name: [[input.threshold_start_silent.name]]
+          description: [[input.threshold_start_silent.description]]
+          default: 3.5
+          selector:
+            number:
+              min: 0.0
+              max: 10.0
+              step: 0.1
+              mode: box
+              unit_of_measurement: "°C"
+
+        threshold_high:
+          name: [[input.threshold_high.name]]
+          description: [[input.threshold_high.description]]
+          default: 5.0
+          selector:
+            number:
+              min: 0.0
+              max: 15.0
+              step: 0.1
+              mode: box
+              unit_of_measurement: "°C"
+
+    speed_settings:
+      name: [[input.speed_settings.name]]
+      icon: mdi:fan
+      collapsed: true
+      input:
+        speed_low:
+          name: [[input.speed_low.name]]
+          description: [[input.speed_low.description]]
+          default: 16
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: slider
+              unit_of_measurement: "%"
+
+        speed_medium:
+          name: [[input.speed_medium.name]]
+          description: [[input.speed_medium.description]]
+          default: 33
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: slider
+              unit_of_measurement: "%"
+
+        speed_high:
+          name: [[input.speed_high.name]]
+          description: [[input.speed_high.description]]
+          default: 67
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: slider
+              unit_of_measurement: "%"
+
+    silent_mode_section:
+      name: [[input.silent_mode_section.name]]
+      icon: mdi:volume-off
+      collapsed: true
+      input:
+        silent_mode_entity:
+          name: [[input.silent_mode_entity.name]]
+          description: [[input.silent_mode_entity.description]]
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: input_boolean
+                - domain: binary_sensor
+
+mode: restart
+
+variables:
+  fan_entity_id: !input fan_entity
+  ac_select_id: !input ac_mode_selector
+  temp_group_id: !input temp_group
+  temp_sensor_high_id: !input temp_sensor_high
+  temp_sensor_low_id: !input temp_sensor_low
+  silent_entity_id: !input silent_mode_entity
+  thr_stop: !input threshold_stop
+  thr_start_normal: !input threshold_start_normal
+  thr_start_silent: !input threshold_start_silent
+  thr_high: !input threshold_high
+  spd_low: !input speed_low
+  spd_medium: !input speed_medium
+  spd_high: !input speed_high
+  state_heating: !input ac_state_heating
+  state_cooling: !input ac_state_cooling
+  state_off: !input ac_state_off
+
+  temp_delta: >
+    {% if temp_group_id not in ['', none] %}
+      {% set max_val = state_attr(temp_group_id, 'max_value') | float(none) %}
+      {% set min_val = state_attr(temp_group_id, 'min_value') | float(none) %}
+      {% if max_val is not none and min_val is not none %}
+        {{ (max_val - min_val) | round(2) }}
+      {% else %}
+        {{ none }}
+      {% endif %}
+    {% elif temp_sensor_high_id not in ['', none] and temp_sensor_low_id not in ['', none] %}
+      {% set high = states(temp_sensor_high_id) | float(none) %}
+      {% set low  = states(temp_sensor_low_id)  | float(none) %}
+      {% if high is not none and low is not none %}
+        {{ (high - low) | round(2) }}
+      {% else %}
+        {{ none }}
+      {% endif %}
+    {% else %}
+      {{ none }}
+    {% endif %}
+
+  ac_current_state: >
+    {% if ac_select_id not in ['', none] %}
+      {{ states(ac_select_id) }}
+    {% else %}
+      {{ none }}
+    {% endif %}
+
+  is_heating_mode: >
+    {% if ac_select_id not in ['', none] %}
+      {{ ac_current_state == state_heating }}
+    {% else %}
+      {{ now().month in [11, 12, 1, 2, 3] }}
+    {% endif %}
+
+  is_off_mode: >
+    {% if ac_select_id not in ['', none] %}
+      {{ ac_current_state == state_off }}
+    {% else %}
+      false
+    {% endif %}
+
+  fan_direction: "{{ 'reverse' if is_heating_mode else 'forward' }}"
+
+  silent_active: >
+    {{ silent_entity_id not in ['', none] and is_state(silent_entity_id, 'on') }}
+
+  effective_start_threshold: >
+    {{ thr_start_silent | float(3.5) if silent_active else thr_start_normal | float(2.0) }}
+
+  delta_available: >
+    {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
+
+trigger:
+  - trigger: state
+    alias: "[[trigger.temp_group.alias]]"
+    entity_id: !input temp_group
+    id: temp_changed
+
+  - trigger: state
+    alias: "[[trigger.temp_sensor_high.alias]]"
+    entity_id: !input temp_sensor_high
+    id: temp_changed
+
+  - trigger: state
+    alias: "[[trigger.temp_sensor_low.alias]]"
+    entity_id: !input temp_sensor_low
+    id: temp_changed
+
+  - trigger: state
+    alias: "[[trigger.climate.alias]]"
+    entity_id: !input ac_mode_selector
+    id: climate_changed
+
+  - trigger: state
+    alias: "[[trigger.silent_mode.alias]]"
+    entity_id: !input silent_mode_entity
+    id: silent_changed
+
+  - trigger: time_pattern
+    alias: "[[trigger.tick.alias]]"
+    minutes: "/5"
+    id: tick
+
+condition:
+  - condition: template
+    alias: "[[condition.delta_available.alias]]"
+    value_template: "{{ delta_available }}"
+
+action:
+  - if:
+      - condition: template
+        value_template: "{{ not is_off_mode }}"
+    then:
+      - action: fan.set_direction
+        target:
+          entity_id: "{{ fan_entity_id }}"
+        data:
+          direction: "{{ fan_direction | trim }}"
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ is_off_mode }}"
+        sequence:
+          - action: fan.turn_off
+            target:
+              entity_id: "{{ fan_entity_id }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) < (thr_stop | float(0.8)) }}"
+        sequence:
+          - action: fan.turn_off
+            target:
+              entity_id: "{{ fan_entity_id }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) >= (thr_high | float(5.0)) }}"
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: "{{ fan_entity_id }}"
+            data:
+              percentage: "{{ spd_high | int(67) }}"
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ (temp_delta | float(0)) >= (effective_start_threshold | float(2.0))
+                 and (temp_delta | float(0)) < (thr_high | float(5.0)) }}
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: "{{ fan_entity_id }}"
+            data:
+              percentage: "{{ spd_medium | int(33) }}"
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ (temp_delta | float(0)) >= (thr_stop | float(0.8))
+                 and (temp_delta | float(0)) < (effective_start_threshold | float(2.0)) }}
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: "{{ fan_entity_id }}"
+            data:
+              percentage: "{{ spd_low | int(16) }}"
+
+    default: []

@@ -1,0 +1,72 @@
+{
+  "blueprint.name": "Contrôleur automatique de ventilateur de plafond",
+  "blueprint.description": "Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de la différence de température entre le plafond et l'ambiance. Sans entité de mode PAC, il détermine le sens de rotation selon la saison (hémisphère nord). Il supporte les modes chauffage et climatisation avec des seuils de vitesse configurables.",
+  "blueprint.version.line": "Version : {version}",
+
+  "input.fan_entity.name": "Ventilateur à contrôler",
+  "input.fan_entity.description": "L'entité du ventilateur de plafond à contrôler avec cette automatisation.",
+
+  "input.temperature_sources.name": "Sources de température",
+
+  "input.temp_group.name": "Groupe de température (min_max)",
+  "input.temp_group.description": "Un groupe de capteurs min_max qui fournit max_value (plafond) et min_value (ambiance). Si renseigné, il a la priorité sur les deux capteurs séparés ci-dessous.",
+
+  "input.temp_sensor_high.name": "Capteur de température plafond",
+  "input.temp_sensor_high.description": "Capteur de température placé près du plafond. Utilisé uniquement si aucun groupe n'est configuré ci-dessus.",
+
+  "input.temp_sensor_low.name": "Capteur de température ambiance",
+  "input.temp_sensor_low.description": "Capteur de température à hauteur d'ambiance. Utilisé uniquement si aucun groupe n'est configuré ci-dessus.",
+
+  "input.climate_control.name": "Contrôle du mode PAC",
+
+  "input.ac_mode_selector.name": "Entité de mode PAC (optionnel)",
+  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison (hémisphère nord : novembre–mars = inversé, avril–octobre = normal).",
+
+  "input.ac_state_heating.name": "Valeur d'état chauffage",
+  "input.ac_state_heating.description": "La valeur exacte de l'input_select indiquant le mode chauffage. Le ventilateur tourne en sens inverse.",
+
+  "input.ac_state_cooling.name": "Valeur d'état climatisation",
+  "input.ac_state_cooling.description": "La valeur exacte de l'input_select indiquant le mode climatisation. Le ventilateur tourne en sens normal.",
+
+  "input.ac_state_off.name": "Valeur d'état éteint",
+  "input.ac_state_off.description": "La valeur exacte de l'input_select indiquant que le système est éteint. Le ventilateur s'arrête quelle que soit la différence de température.",
+
+  "input.threshold_settings.name": "Seuils de température",
+
+  "input.threshold_stop.name": "Seuil d'arrêt",
+  "input.threshold_stop.description": "Le ventilateur s'arrête quand la différence de température passe sous ce seuil.",
+
+  "input.threshold_start_normal.name": "Seuil de démarrage normal",
+  "input.threshold_start_normal.description": "Le ventilateur démarre à vitesse moyenne quand le delta dépasse ce seuil (mode silencieux désactivé).",
+
+  "input.threshold_start_silent.name": "Seuil de démarrage silencieux",
+  "input.threshold_start_silent.description": "Le ventilateur démarre à vitesse moyenne quand le delta dépasse ce seuil (mode silencieux actif).",
+
+  "input.threshold_high.name": "Seuil de haute vitesse",
+  "input.threshold_high.description": "Le ventilateur tourne à haute vitesse quand le delta dépasse ce seuil.",
+
+  "input.speed_settings.name": "Vitesses du ventilateur",
+
+  "input.speed_low.name": "Vitesse basse",
+  "input.speed_low.description": "Pourcentage du ventilateur dans la zone d'hystérésis (entre les seuils d'arrêt et de démarrage).",
+
+  "input.speed_medium.name": "Vitesse moyenne",
+  "input.speed_medium.description": "Pourcentage du ventilateur en conditions normales de fonctionnement.",
+
+  "input.speed_high.name": "Haute vitesse",
+  "input.speed_high.description": "Pourcentage du ventilateur quand le delta dépasse le seuil de haute vitesse.",
+
+  "input.silent_mode_section.name": "Mode silencieux",
+
+  "input.silent_mode_entity.name": "Entité de mode silencieux",
+  "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne démarre que si le delta dépasse le seuil silencieux. Laisser vide pour désactiver cette fonctionnalité.",
+
+  "trigger.temp_group.alias": "Groupe de température modifié",
+  "trigger.temp_sensor_high.alias": "Capteur plafond modifié",
+  "trigger.temp_sensor_low.alias": "Capteur ambiance modifié",
+  "trigger.climate.alias": "Mode PAC modifié",
+  "trigger.silent_mode.alias": "Mode silencieux modifié",
+  "trigger.tick.alias": "Réévaluation périodique (toutes les 5 minutes)",
+
+  "condition.delta_available.alias": "La différence de température est disponible"
+}
