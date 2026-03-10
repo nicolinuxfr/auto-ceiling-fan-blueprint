@@ -1,6 +1,6 @@
 {
   "blueprint.name": "Contrôleur automatique de ventilateur de plafond",
-  "blueprint.description": "Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de la différence de température entre le plafond et l'ambiance. Sans entité de mode PAC, il détermine le sens de rotation selon la saison (hémisphère nord). Il supporte les modes chauffage et climatisation avec des seuils de vitesse configurables.",
+  "blueprint.description": "Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de la différence de température entre le plafond et l'ambiance. Sans entité de mode PAC, il détermine le sens de rotation selon la saison, en détectant automatiquement l'hémisphère depuis la localisation de votre instance Home Assistant. Il supporte les modes chauffage et climatisation avec des seuils de vitesse configurables.",
   "blueprint.version.line": "Version : {version}",
 
   "input.fan_entity.name": "Ventilateur à contrôler",
@@ -20,7 +20,7 @@
   "input.climate_control.name": "Contrôle du mode PAC",
 
   "input.ac_mode_selector.name": "Entité de mode PAC (optionnel)",
-  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison (hémisphère nord — novembre–mars = inversé, avril–octobre = normal).",
+  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison, basé sur la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).",
 
   "input.ac_state_heating.name": "Valeur d'état chauffage",
   "input.ac_state_heating.description": "La valeur exacte de l'input_select indiquant le mode chauffage. Le ventilateur tourne en sens inverse.",

@@ -13,7 +13,7 @@ This blueprint automatically controls a ceiling fan based on the temperature dif
 
 1. The blueprint calculates a temperature delta between ceiling and ambient sensors.
 2. It determines the fan direction:
-   - **Without AC mode entity**: direction is based on the current season (northern hemisphere — November–March = reverse for heating, April–October = forward for cooling).
+   - **Without AC mode entity**: direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).
    - **With AC mode entity**: direction is controlled by an `input_select` entity.
 3. It adjusts fan speed based on configurable thresholds:
    - Delta below **stop threshold** (default 0.8°C): fan turns off.
@@ -52,6 +52,5 @@ If both are configured, the group takes priority.
 
 ## Known limitations
 
-- The seasonal direction detection assumes a **northern hemisphere** location. Southern hemisphere users should configure an AC mode `input_select` entity instead.
 - Blueprints do not support mutually exclusive optional inputs: both the group and the two-sensor options are shown, but only one should be filled (the group takes priority).
 - Fan direction changes may not be supported by all fan integrations when the fan is off.

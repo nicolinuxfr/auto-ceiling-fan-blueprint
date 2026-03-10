@@ -13,7 +13,7 @@ Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de 
 
 1. Le blueprint calcule un delta de température entre les capteurs plafond et ambiance.
 2. Il détermine le sens de rotation du ventilateur :
-   - **Sans entité de mode PAC** : le sens est basé sur la saison courante (hémisphère nord — novembre–mars = inversé pour le chauffage, avril–octobre = normal pour la clim).
+   - **Sans entité de mode PAC** : le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).
    - **Avec entité de mode PAC** : le sens est contrôlé par une entité `input_select`.
 3. Il ajuste la vitesse du ventilateur selon des seuils configurables :
    - Delta sous le **seuil d'arrêt** (défaut 0.8°C) : ventilateur arrêté.
@@ -52,6 +52,5 @@ Si les deux sont configurés, le groupe a la priorité.
 
 ## Limitations connues
 
-- La détection de direction par saison suppose un emplacement en **hémisphère nord**. Les utilisateurs de l'hémisphère sud doivent configurer une entité `input_select` de mode PAC.
 - Les blueprints ne supportent pas les inputs optionnels mutuellement exclusifs : les deux options (groupe et deux capteurs) sont affichées, mais une seule doit être remplie (le groupe a la priorité).
 - La modification du sens de rotation peut ne pas être supportée par toutes les intégrations de ventilateurs quand le ventilateur est arrêté.

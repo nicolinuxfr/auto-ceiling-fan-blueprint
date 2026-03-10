@@ -1,6 +1,6 @@
 {
   "blueprint.name": "Auto Ceiling Fan Controller",
-  "blueprint.description": "This blueprint automatically controls a ceiling fan based on the temperature difference between the ceiling and the ambient temperature. Without an AC mode entity, it determines the rotation direction based on the season (northern hemisphere). It supports heating and cooling modes with configurable speed thresholds.",
+  "blueprint.description": "This blueprint automatically controls a ceiling fan based on the temperature difference between the ceiling and the ambient temperature. Without an AC mode entity, it determines the rotation direction based on the season, automatically detecting the hemisphere from your Home Assistant location. It supports heating and cooling modes with configurable speed thresholds.",
   "blueprint.version.line": "Version: {version}",
 
   "input.fan_entity.name": "Fan to control",
@@ -20,7 +20,7 @@
   "input.climate_control.name": "AC mode control",
 
   "input.ac_mode_selector.name": "AC mode entity (optional)",
-  "input.ac_mode_selector.description": "An input_select indicating the current AC mode (Heating / Cooling / Off). If not set, the rotation direction is determined automatically by season (northern hemisphere — November–March = reverse, April–October = forward).",
+  "input.ac_mode_selector.description": "An input_select indicating the current AC mode (Heating / Cooling / Off). If not set, the rotation direction is determined automatically by season, based on your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).",
 
   "input.ac_state_heating.name": "Heating state value",
   "input.ac_state_heating.description": "The exact input_select value indicating heating mode. The fan rotates in reverse.",
