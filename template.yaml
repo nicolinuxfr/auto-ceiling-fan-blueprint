@@ -245,7 +245,9 @@ variables:
     {% if ac_select_id not in ['', none] %}
       {{ ac_current_state == state_heating }}
     {% else %}
-      {{ now().month in [11, 12, 1, 2, 3] }}
+      {% set lat = state_attr('zone.home', 'latitude') | float(48) %}
+      {% set winter_months = [11, 12, 1, 2, 3] if lat >= 0 else [5, 6, 7, 8, 9] %}
+      {{ now().month in winter_months }}
     {% endif %}
 
   is_off_mode: >
