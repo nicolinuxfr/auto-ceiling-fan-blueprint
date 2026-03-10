@@ -20,7 +20,7 @@
   "input.climate_control.name": "AC mode control",
 
   "input.ac_mode_selector.name": "AC mode entity (optional)",
-  "input.ac_mode_selector.description": "An input_select indicating the current AC mode (Heating / Cooling / Off). If not set, the rotation direction is determined automatically by season (northern hemisphere: November–March = reverse, April–October = forward).",
+  "input.ac_mode_selector.description": "An input_select indicating the current AC mode (Heating / Cooling / Off). If not set, the rotation direction is determined automatically by season (northern hemisphere — November–March = reverse, April–October = forward).",
 
   "input.ac_state_heating.name": "Heating state value",
   "input.ac_state_heating.description": "The exact input_select value indicating heating mode. The fan rotates in reverse.",
