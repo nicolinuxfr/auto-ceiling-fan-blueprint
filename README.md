@@ -24,7 +24,7 @@ This blueprint automatically controls a ceiling fan based on the temperature dif
 
 ## Temperature sources (choose one)
 
-- **min_max group** (recommended): a Home Assistant `min_max` helper that aggregates both sensors. The delta is `max_value − min_value`.
+- **Thermometer group** (recommended): a Home Assistant `group.xxx` containing temperature sensors. The automation calculates min and max itself.
 - **Two separate sensors**: provide a ceiling sensor and an ambient sensor directly.
 
 If both are configured, the group takes priority.
@@ -34,7 +34,7 @@ If both are configured, the group takes priority.
 | Input | Description | Default |
 |---|---|---|
 | Fan entity | The ceiling fan to control | — |
-| Temperature group | A min_max sensor group | — |
+| Temperature group | A group of temperature sensors (group.xxx) | — |
 | Ceiling sensor | Temperature near the ceiling | — |
 | Ambient sensor | Temperature at room level | — |
 | AC mode entity | Optional input_select for heating/cooling/off | — |

@@ -8,8 +8,8 @@
 
   "input.temperature_sources.name": "Temperature sources",
 
-  "input.temp_group.name": "Temperature group (min_max)",
-  "input.temp_group.description": "A min_max sensor group that provides max_value (ceiling) and min_value (ambient). If provided, this takes priority over the two separate sensors below.",
+  "input.temp_group.name": "Thermometer group",
+  "input.temp_group.description": "A Home Assistant group (group.xxx) containing temperature sensors. The automation calculates min and max itself. If provided, this takes priority over the two separate sensors below.",
 
   "input.temp_sensor_high.name": "Ceiling temperature sensor",
   "input.temp_sensor_high.description": "Temperature sensor placed near the ceiling. Used only if no group is configured above.",

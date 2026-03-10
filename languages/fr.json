@@ -8,8 +8,8 @@
 
   "input.temperature_sources.name": "Sources de température",
 
-  "input.temp_group.name": "Groupe de température (min_max)",
-  "input.temp_group.description": "Un groupe de capteurs min_max qui fournit max_value (plafond) et min_value (ambiance). Si renseigné, il a la priorité sur les deux capteurs séparés ci-dessous.",
+  "input.temp_group.name": "Groupe de thermomètres",
+  "input.temp_group.description": "Un groupe Home Assistant (group.xxx) contenant les capteurs de température. L'automatisation calcule elle-même le min et le max. Si renseigné, il a la priorité sur les deux capteurs séparés ci-dessous.",
 
   "input.temp_sensor_high.name": "Capteur de température plafond",
   "input.temp_sensor_high.description": "Capteur de température placé près du plafond. Utilisé uniquement si aucun groupe n'est configuré ci-dessus.",

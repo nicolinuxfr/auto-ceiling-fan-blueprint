@@ -24,7 +24,7 @@ Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de 
 
 ## Sources de température (choisir une)
 
-- **Groupe min_max** (recommandé) : un helper Home Assistant `min_max` qui regroupe les deux capteurs. Le delta est `max_value − min_value`.
+- **Groupe de thermomètres** (recommandé) : un groupe Home Assistant `group.xxx` contenant les capteurs de température. L'automatisation calcule elle-même le min et le max.
 - **Deux capteurs séparés** : fournir directement un capteur plafond et un capteur ambiance.
 
 Si les deux sont configurés, le groupe a la priorité.
@@ -34,7 +34,7 @@ Si les deux sont configurés, le groupe a la priorité.
 | Input | Description | Défaut |
 |---|---|---|
 | Ventilateur | Le ventilateur de plafond à contrôler | — |
-| Groupe de température | Un groupe de capteurs min_max | — |
+| Groupe de température | Un groupe de thermomètres (group.xxx) | — |
 | Capteur plafond | Température près du plafond | — |
 | Capteur ambiance | Température à hauteur d'ambiance | — |
 | Entité mode PAC | input_select optionnel (chauffage/clim/éteint) | — |

@@ -25,9 +25,7 @@ blueprint:
           default: ""
           selector:
             entity:
-              filter:
-                - domain: sensor
-                  device_class: temperature
+              domain: group
 
         temp_sensor_high:
           name: [[input.temp_sensor_high.name]]
@@ -214,10 +212,13 @@ variables:
 
   temp_delta: >
     {% if temp_group_id not in ['', none] %}
-      {% set max_val = state_attr(temp_group_id, 'max_value') | float(none) %}
-      {% set min_val = state_attr(temp_group_id, 'min_value') | float(none) %}
-      {% if max_val is not none and min_val is not none %}
-        {{ (max_val - min_val) | round(2) }}
+      {% set temps = expand(temp_group_id)
+         | map(attribute='state')
+         | map('float', none)
+         | reject('eq', none)
+         | list %}
+      {% if temps | count >= 2 %}
+        {{ (temps | max - temps | min) | round(2) }}
       {% else %}
         {{ none }}
       {% endif %}
@@ -266,29 +267,39 @@ variables:
     {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
 
 trigger:
-  - trigger: state
+  - trigger: event
     alias: "[[trigger.temp_group.alias]]"
-    entity_id: !input temp_group
+    event_type: state_changed
+    event_data:
+      entity_id: !input temp_group
     id: temp_changed
 
-  - trigger: state
+  - trigger: event
     alias: "[[trigger.temp_sensor_high.alias]]"
-    entity_id: !input temp_sensor_high
+    event_type: state_changed
+    event_data:
+      entity_id: !input temp_sensor_high
     id: temp_changed
 
-  - trigger: state
+  - trigger: event
     alias: "[[trigger.temp_sensor_low.alias]]"
-    entity_id: !input temp_sensor_low
+    event_type: state_changed
+    event_data:
+      entity_id: !input temp_sensor_low
     id: temp_changed
 
-  - trigger: state
+  - trigger: event
     alias: "[[trigger.climate.alias]]"
-    entity_id: !input ac_mode_selector
+    event_type: state_changed
+    event_data:
+      entity_id: !input ac_mode_selector
     id: climate_changed
 
-  - trigger: state
+  - trigger: event
     alias: "[[trigger.silent_mode.alias]]"
-    entity_id: !input silent_mode_entity
+    event_type: state_changed
+    event_data:
+      entity_id: !input silent_mode_entity
     id: silent_changed
 
   - trigger: time_pattern
