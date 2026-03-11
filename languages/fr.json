@@ -20,7 +20,7 @@
   "input.climate_control.name": "Contrôle du mode PAC",
 
   "input.ac_mode_selector.name": "Entité de mode PAC (optionnel)",
-  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison, basé sur la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).",
+  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison.",
 
   "input.ac_state_heating.name": "Valeur d'état chauffage",
   "input.ac_state_heating.description": "La valeur exacte de l'input_select indiquant le mode chauffage. Le ventilateur tourne en sens inverse.",
