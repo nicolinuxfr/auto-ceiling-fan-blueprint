@@ -18,7 +18,6 @@ blueprint:
     temp_sensors:
       name: [[input.temp_sensors.name]]
       description: [[input.temp_sensors.description]]
-      icon: mdi:thermometer
       selector:
         entity:
           multiple: true
