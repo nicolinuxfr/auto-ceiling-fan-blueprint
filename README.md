@@ -22,21 +22,22 @@ This blueprint automatically controls a ceiling fan based on the temperature dif
    - Delta above **high speed threshold** (default 5.0°C): fan runs at **high speed** (67%).
 4. Optional **silent mode**: when active (e.g. TV is on), the start threshold is raised to avoid noise.
 
-## Temperature sources (choose one)
+## Temperature sources
 
-- **Thermometer group** (recommended): a Home Assistant `group.xxx` containing temperature sensors. The automation calculates min and max itself.
-- **Two separate sensors**: provide a ceiling sensor and an ambient sensor directly.
+Select one or more temperature sensors and/or sensor groups. The automation uses `expand()` to automatically resolve group members, then computes min and max from all available values.
 
-If both are configured, the group takes priority.
+- **A sensor group**: the automation expands its members and extracts all values.
+- **Multiple individual sensors**: the automation uses all their values directly.
+- **A mix of both**: all values are pooled together.
+
+At least 2 distinct temperature values are required. If only one value is available, the automation does not run.
 
 ## Configuration options
 
 | Input | Description | Default |
 |---|---|---|
 | Fan entity | The ceiling fan to control | — |
-| Temperature group | A group of temperature sensors (group.xxx) | — |
-| Ceiling sensor | Temperature near the ceiling | — |
-| Ambient sensor | Temperature at room level | — |
+| Temperature sensors | Temperature sensors and/or sensor groups | — |
 | AC mode entity | Optional input_select for heating/cooling/off | — |
 | Heating state | State value for heating mode | `Chauffage` |
 | Cooling state | State value for cooling mode | `Climatisation` |
@@ -52,5 +53,5 @@ If both are configured, the group takes priority.
 
 ## Known limitations
 
-- Blueprints do not support mutually exclusive optional inputs: both the group and the two-sensor options are shown, but only one should be filled (the group takes priority).
+- Blueprints do not support minimum selection count validation: the UI requires at least 1 sensor, but the automation needs at least 2 temperature values to compute a delta. If insufficient values are found, the automation simply does not trigger.
 - Fan direction changes may not be supported by all fan integrations when the fan is off.

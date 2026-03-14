@@ -6,16 +6,8 @@
   "input.fan_entity.name": "Ventilateur à contrôler",
   "input.fan_entity.description": "L'entité du ventilateur de plafond à contrôler avec cette automatisation.",
 
-  "input.temperature_sources.name": "Sources de température",
-
-  "input.temp_group.name": "Groupe de thermomètres",
-  "input.temp_group.description": "Un groupe Home Assistant (group.xxx) contenant les capteurs de température. L'automatisation calcule elle-même le min et le max. Si renseigné, il a la priorité sur les deux capteurs séparés ci-dessous.",
-
-  "input.temp_sensor_high.name": "Capteur de température plafond",
-  "input.temp_sensor_high.description": "Capteur de température placé près du plafond. Utilisé uniquement si aucun groupe n'est configuré ci-dessus.",
-
-  "input.temp_sensor_low.name": "Capteur de température ambiance",
-  "input.temp_sensor_low.description": "Capteur de température à hauteur d'ambiance. Utilisé uniquement si aucun groupe n'est configuré ci-dessus.",
+  "input.temp_sensors.name": "Capteurs de température",
+  "input.temp_sensors.description": "Sélectionnez des capteurs de température et/ou des groupes de capteurs. L'automatisation calcule le min et le max de l'ensemble des valeurs (en développant automatiquement les groupes). Au moins 2 valeurs de température distinctes sont nécessaires au fonctionnement.",
 
   "input.climate_control.name": "Contrôle du mode PAC",
 
@@ -61,9 +53,7 @@
   "input.silent_mode_entity.name": "Entité de mode silencieux",
   "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne démarre que si le delta dépasse le seuil silencieux. Laisser vide pour désactiver cette fonctionnalité.",
 
-  "trigger.temp_group.alias": "Groupe de température modifié",
-  "trigger.temp_sensor_high.alias": "Capteur plafond modifié",
-  "trigger.temp_sensor_low.alias": "Capteur ambiance modifié",
+  "trigger.temp_sensors.alias": "Capteur de température modifié",
   "trigger.climate.alias": "Mode PAC modifié",
   "trigger.silent_mode.alias": "Mode silencieux modifié",
   "trigger.tick.alias": "Réévaluation périodique (toutes les 5 minutes)",

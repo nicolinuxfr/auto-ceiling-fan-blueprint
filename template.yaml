@@ -15,37 +15,16 @@ blueprint:
         entity:
           domain: fan
 
-    temperature_sources:
-      name: [[input.temperature_sources.name]]
+    temp_sensors:
+      name: [[input.temp_sensors.name]]
+      description: [[input.temp_sensors.description]]
       icon: mdi:thermometer
-      input:
-        temp_group:
-          name: [[input.temp_group.name]]
-          description: [[input.temp_group.description]]
-          default: ""
-          selector:
-            entity:
-              domain: group
-
-        temp_sensor_high:
-          name: [[input.temp_sensor_high.name]]
-          description: [[input.temp_sensor_high.description]]
-          default: ""
-          selector:
-            entity:
-              filter:
-                - domain: sensor
-                  device_class: temperature
-
-        temp_sensor_low:
-          name: [[input.temp_sensor_low.name]]
-          description: [[input.temp_sensor_low.description]]
-          default: ""
-          selector:
-            entity:
-              filter:
-                - domain: sensor
-                  device_class: temperature
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: sensor
+              device_class: temperature
 
     climate_control:
       name: [[input.climate_control.name]]
@@ -195,9 +174,7 @@ mode: restart
 variables:
   fan_entity_id: !input fan_entity
   ac_select_id: !input ac_mode_selector
-  temp_group_id: !input temp_group
-  temp_sensor_high_id: !input temp_sensor_high
-  temp_sensor_low_id: !input temp_sensor_low
+  temp_sensors_ids: !input temp_sensors
   silent_entity_id: !input silent_mode_entity
   thr_stop: !input threshold_stop
   thr_start_normal: !input threshold_start_normal
@@ -211,27 +188,15 @@ variables:
   state_off: !input ac_state_off
 
   temp_delta: >
-    {% if temp_group_id not in ['', none] %}
-      {% set temps = expand(temp_group_id)
-         | map(attribute='state')
-         | map('float', none)
-         | reject('eq', none)
-         | list %}
-      {% if temps | count >= 2 %}
-        {{ (temps | max - temps | min) | round(2) }}
-      {% else %}
-        {{ none }}
-      {% endif %}
-    {% elif temp_sensor_high_id not in ['', none] and temp_sensor_low_id not in ['', none] %}
-      {% set high = states(temp_sensor_high_id) | float(none) %}
-      {% set low  = states(temp_sensor_low_id)  | float(none) %}
-      {% if high is not none and low is not none %}
-        {{ (high - low) | round(2) }}
-      {% else %}
-        {{ none }}
-      {% endif %}
+    {% set temps = expand(temp_sensors_ids)
+       | map(attribute='state')
+       | map('float', none)
+       | reject('eq', none)
+       | list %}
+    {% if temps | count >= 2 %}
+      {{ (temps | max - temps | min) | round(2) }}
     {% else %}
-      {{ none }}
+      {{ 0 }}
     {% endif %}
 
   ac_current_state: >
@@ -269,25 +234,9 @@ variables:
     {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
 
 trigger:
-  - trigger: event
-    alias: "[[trigger.temp_group.alias]]"
-    event_type: state_changed
-    event_data:
-      entity_id: !input temp_group
-    id: temp_changed
-
-  - trigger: event
-    alias: "[[trigger.temp_sensor_high.alias]]"
-    event_type: state_changed
-    event_data:
-      entity_id: !input temp_sensor_high
-    id: temp_changed
-
-  - trigger: event
-    alias: "[[trigger.temp_sensor_low.alias]]"
-    event_type: state_changed
-    event_data:
-      entity_id: !input temp_sensor_low
+  - trigger: state
+    alias: "[[trigger.temp_sensors.alias]]"
+    entity_id: !input temp_sensors
     id: temp_changed
 
   - trigger: event

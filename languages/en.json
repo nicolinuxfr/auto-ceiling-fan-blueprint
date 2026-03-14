@@ -6,16 +6,8 @@
   "input.fan_entity.name": "Fan to control",
   "input.fan_entity.description": "The ceiling fan entity to control with this automation.",
 
-  "input.temperature_sources.name": "Temperature sources",
-
-  "input.temp_group.name": "Thermometer group",
-  "input.temp_group.description": "A Home Assistant group (group.xxx) containing temperature sensors. The automation calculates min and max itself. If provided, this takes priority over the two separate sensors below.",
-
-  "input.temp_sensor_high.name": "Ceiling temperature sensor",
-  "input.temp_sensor_high.description": "Temperature sensor placed near the ceiling. Used only if no group is configured above.",
-
-  "input.temp_sensor_low.name": "Ambient temperature sensor",
-  "input.temp_sensor_low.description": "Ambient temperature sensor (room level). Used only if no group is configured above.",
+  "input.temp_sensors.name": "Temperature sensors",
+  "input.temp_sensors.description": "Select temperature sensors and/or sensor groups. The automation computes min and max from all values (expanding groups automatically). At least 2 distinct temperature values are required for the automation to work.",
 
   "input.climate_control.name": "AC mode control",
 
@@ -61,9 +53,7 @@
   "input.silent_mode_entity.name": "Silent mode entity",
   "input.silent_mode_entity.description": "An input_boolean or binary_sensor that enables silent mode (e.g. TV on). When active, the fan only starts when the delta exceeds the silent start threshold. Leave empty to disable.",
 
-  "trigger.temp_group.alias": "Temperature group changed",
-  "trigger.temp_sensor_high.alias": "Ceiling sensor changed",
-  "trigger.temp_sensor_low.alias": "Ambient sensor changed",
+  "trigger.temp_sensors.alias": "Temperature sensor changed",
   "trigger.climate.alias": "AC mode changed",
   "trigger.silent_mode.alias": "Silent mode changed",
   "trigger.tick.alias": "Periodic re-evaluation (every 5 minutes)",

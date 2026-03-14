@@ -22,21 +22,22 @@ Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de 
    - Delta au-dessus du **seuil de haute vitesse** (défaut 5.0°C) : **haute vitesse** (67%).
 4. **Mode silencieux** optionnel : quand actif (ex. TV allumée), le seuil de démarrage est relevé pour éviter le bruit.
 
-## Sources de température (choisir une)
+## Sources de température
 
-- **Groupe de thermomètres** (recommandé) : un groupe Home Assistant `group.xxx` contenant les capteurs de température. L'automatisation calcule elle-même le min et le max.
-- **Deux capteurs séparés** : fournir directement un capteur plafond et un capteur ambiance.
+Sélectionnez un ou plusieurs capteurs de température et/ou groupes de capteurs. L'automatisation utilise `expand()` pour résoudre automatiquement les membres des groupes, puis calcule le min et le max de toutes les valeurs disponibles.
 
-Si les deux sont configurés, le groupe a la priorité.
+- **Un groupe de capteurs** : l'automatisation développe ses membres et extrait toutes les valeurs.
+- **Plusieurs capteurs individuels** : l'automatisation utilise directement toutes leurs valeurs.
+- **Un mélange des deux** : toutes les valeurs sont regroupées.
+
+Au moins 2 valeurs de température distinctes sont nécessaires. Si une seule valeur est disponible, l'automatisation ne se déclenche pas.
 
 ## Options de configuration
 
 | Input | Description | Défaut |
 |---|---|---|
 | Ventilateur | Le ventilateur de plafond à contrôler | — |
-| Groupe de température | Un groupe de thermomètres (group.xxx) | — |
-| Capteur plafond | Température près du plafond | — |
-| Capteur ambiance | Température à hauteur d'ambiance | — |
+| Capteurs de température | Capteurs de température et/ou groupes de capteurs | — |
 | Entité mode PAC | input_select optionnel (chauffage/clim/éteint) | — |
 | État chauffage | Valeur de l'état pour le mode chauffage | `Chauffage` |
 | État climatisation | Valeur de l'état pour le mode climatisation | `Climatisation` |
@@ -52,5 +53,5 @@ Si les deux sont configurés, le groupe a la priorité.
 
 ## Limitations connues
 
-- Les blueprints ne supportent pas les inputs optionnels mutuellement exclusifs : les deux options (groupe et deux capteurs) sont affichées, mais une seule doit être remplie (le groupe a la priorité).
+- Les blueprints ne supportent pas la validation d'un nombre minimum de sélections : l'interface exige au moins 1 capteur, mais l'automatisation a besoin d'au moins 2 valeurs de température pour calculer un delta. Si les valeurs sont insuffisantes, l'automatisation ne se déclenche tout simplement pas.
 - La modification du sens de rotation peut ne pas être supportée par toutes les intégrations de ventilateurs quand le ventilateur est arrêté.

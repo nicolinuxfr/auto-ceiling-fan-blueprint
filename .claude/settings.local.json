@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 scripts/generate_blueprints.py --filename ceiling_fan.yaml)"
+      "Bash(python3 scripts/generate_blueprints.py --filename ceiling_fan.yaml)",
+      "WebSearch",
+      "Bash(python3 scripts/generate_blueprints.py)"
     ]
   }
 }
