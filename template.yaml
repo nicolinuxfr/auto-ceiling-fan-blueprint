@@ -67,12 +67,12 @@ blueprint:
         threshold_stop:
           name: [[input.threshold_stop.name]]
           description: [[input.threshold_stop.description]]
-          default: 0.8
+          default: 1.0
           selector:
             number:
               min: 0.0
               max: 5.0
-              step: 0.1
+              step: 0.5
               mode: box
               unit_of_measurement: "°C"
 
@@ -84,31 +84,31 @@ blueprint:
             number:
               min: 0.0
               max: 10.0
-              step: 0.1
+              step: 0.5
               mode: box
               unit_of_measurement: "°C"
 
         threshold_start_silent:
           name: [[input.threshold_start_silent.name]]
           description: [[input.threshold_start_silent.description]]
-          default: 3.5
+          default: 3.0
           selector:
             number:
               min: 0.0
               max: 10.0
-              step: 0.1
+              step: 0.5
               mode: box
               unit_of_measurement: "°C"
 
         threshold_high:
           name: [[input.threshold_high.name]]
           description: [[input.threshold_high.description]]
-          default: 5.0
+          default: 4.0
           selector:
             number:
               min: 0.0
               max: 15.0
-              step: 0.1
+              step: 0.5
               mode: box
               unit_of_measurement: "°C"
 
