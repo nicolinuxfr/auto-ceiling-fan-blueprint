@@ -53,10 +53,14 @@
   "input.silent_mode_entity.name": "Entité de mode silencieux",
   "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne démarre que si le delta dépasse le seuil silencieux. Laisser vide pour désactiver cette fonctionnalité.",
 
-  "trigger.temp_sensors.alias": "Capteur de température modifié",
+  "input.eval_interval.name": "Intervalle de réévaluation",
+  "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement de mode PAC ou mode silencieux.",
+
+  "trigger.automations_reload.alias": "Rechargement des automatisations",
   "trigger.climate.alias": "Mode PAC modifié",
   "trigger.silent_mode.alias": "Mode silencieux modifié",
-  "trigger.tick.alias": "Réévaluation périodique (toutes les 5 minutes)",
+  "trigger.tick.alias": "Réévaluation périodique (toutes les minutes)",
 
-  "condition.delta_available.alias": "La différence de température est disponible"
+  "condition.delta_available.alias": "La différence de température est disponible",
+  "condition.eval_interval.alias": "Intervalle de réévaluation respecté"
 }

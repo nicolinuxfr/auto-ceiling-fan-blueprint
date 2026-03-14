@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.3.2
+
+- Less executions of the automation :
+  - Only at fixed intervall, 10 min by default, but the user can choose anything between 5 and 120 ;
+  - Immediately when the control entities (rotation and silent mode) changes or when the automatisation is saved (after a change or blueprint update).
+
 ## 2026.3.1
 
 - Change logic of temperature sensors :

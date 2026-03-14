@@ -168,6 +168,18 @@ blueprint:
                 - domain: input_boolean
                 - domain: binary_sensor
 
+    eval_interval:
+      name: [[input.eval_interval.name]]
+      description: [[input.eval_interval.description]]
+      default: 10
+      selector:
+        number:
+          min: 5
+          max: 120
+          step: 1
+          mode: slider
+          unit_of_measurement: "min"
+
 mode: restart
 
 variables:
@@ -223,6 +235,8 @@ variables:
 
   fan_direction: "{{ 'reverse' if is_heating_mode else 'forward' }}"
 
+  eval_interval_val: !input eval_interval
+
   silent_active: >
     {{ silent_entity_id not in ['', none] and is_state(silent_entity_id, 'on') }}
 
@@ -233,10 +247,13 @@ variables:
     {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
 
 trigger:
-  - trigger: state
-    alias: "[[trigger.temp_sensors.alias]]"
-    entity_id: !input temp_sensors
-    id: temp_changed
+  - trigger: event
+    alias: "[[trigger.automations_reload.alias]]"
+    event_type: call_service
+    event_data:
+      domain: automation
+      service: reload
+    id: automations_reload
 
   - trigger: event
     alias: "[[trigger.climate.alias]]"
@@ -254,13 +271,24 @@ trigger:
 
   - trigger: time_pattern
     alias: "[[trigger.tick.alias]]"
-    minutes: "/5"
+    minutes: "/1"
     id: tick
 
 condition:
   - condition: template
     alias: "[[condition.delta_available.alias]]"
     value_template: "{{ delta_available }}"
+
+  - condition: template
+    alias: "[[condition.eval_interval.alias]]"
+    value_template: >
+      {% if trigger.id == 'tick' %}
+        {% set interval = eval_interval_val | int(10) %}
+        {% set total_minutes = now().hour * 60 + now().minute %}
+        {{ total_minutes % interval == 0 }}
+      {% else %}
+        true
+      {% endif %}
 
 action:
   - if:
