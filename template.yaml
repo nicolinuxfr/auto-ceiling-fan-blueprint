@@ -342,9 +342,10 @@ action:
           - condition: template
             value_template: >
               {{ (temp_delta | float(0)) >= (thr_stop | float(0.8))
-                 and (temp_delta | float(0)) < (effective_start_threshold | float(2.0)) }}
+                 and (temp_delta | float(0)) < (effective_start_threshold | float(2.0))
+                 and is_state(fan_entity_id, 'on') }}
         sequence:
-          - action: fan.turn_on
+          - action: fan.set_percentage
             target:
               entity_id: "{{ fan_entity_id }}"
             data:
