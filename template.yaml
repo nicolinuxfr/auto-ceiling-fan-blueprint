@@ -171,13 +171,13 @@ blueprint:
     eval_interval:
       name: [[input.eval_interval.name]]
       description: [[input.eval_interval.description]]
-      default: 10
+      default: 15
       selector:
         number:
-          min: 5
-          max: 120
+          min: 1
+          max: 1440
           step: 1
-          mode: slider
+          mode: box
           unit_of_measurement: "min"
 
 mode: restart
@@ -235,8 +235,6 @@ variables:
 
   fan_direction: "{{ 'reverse' if is_heating_mode else 'forward' }}"
 
-  eval_interval_val: !input eval_interval
-
   silent_active: >
     {{ silent_entity_id not in ['', none] and is_state(silent_entity_id, 'on') }}
 
@@ -246,7 +244,15 @@ variables:
   delta_available: >
     {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
 
+trigger_variables:
+  eval_interval_val: !input eval_interval
+
 trigger:
+  - trigger: homeassistant
+    alias: "[[trigger.ha_start.alias]]"
+    event: start
+    id: ha_start
+
   - trigger: event
     alias: "[[trigger.automations_reload.alias]]"
     event_type: call_service
@@ -269,26 +275,18 @@ trigger:
       entity_id: !input silent_mode_entity
     id: silent_changed
 
-  - trigger: time_pattern
+  - trigger: template
     alias: "[[trigger.tick.alias]]"
-    minutes: "/1"
+    value_template: >
+      {% set interval = eval_interval_val | int(10) %}
+      {% set total_minutes = now().hour * 60 + now().minute %}
+      {{ total_minutes % interval == 0 }}
     id: tick
 
 condition:
   - condition: template
     alias: "[[condition.delta_available.alias]]"
     value_template: "{{ delta_available }}"
-
-  - condition: template
-    alias: "[[condition.eval_interval.alias]]"
-    value_template: >
-      {% if trigger.id == 'tick' %}
-        {% set interval = eval_interval_val | int(10) %}
-        {% set total_minutes = now().hour * 60 + now().minute %}
-        {{ total_minutes % interval == 0 }}
-      {% else %}
-        true
-      {% endif %}
 
 action:
   - if:

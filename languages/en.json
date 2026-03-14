@@ -56,11 +56,11 @@
   "input.eval_interval.name": "Re-evaluation interval",
   "input.eval_interval.description": "How often the automation re-evaluates the fan state. An immediate evaluation is still triggered on HA start, and on every AC mode or silent mode change.",
 
+  "trigger.ha_start.alias": "Home Assistant started",
   "trigger.automations_reload.alias": "Automations reloaded",
   "trigger.climate.alias": "AC mode changed",
   "trigger.silent_mode.alias": "Silent mode changed",
-  "trigger.tick.alias": "Periodic tick (every minute)",
+  "trigger.tick.alias": "Periodic re-evaluation",
 
-  "condition.delta_available.alias": "Temperature delta is available",
-  "condition.eval_interval.alias": "Re-evaluation interval reached"
+  "condition.delta_available.alias": "Temperature delta is available"
 }

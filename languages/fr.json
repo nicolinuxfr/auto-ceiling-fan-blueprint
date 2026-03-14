@@ -56,11 +56,11 @@
   "input.eval_interval.name": "Intervalle de réévaluation",
   "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement de mode PAC ou mode silencieux.",
 
+  "trigger.ha_start.alias": "Démarrage de Home Assistant",
   "trigger.automations_reload.alias": "Rechargement des automatisations",
   "trigger.climate.alias": "Mode PAC modifié",
   "trigger.silent_mode.alias": "Mode silencieux modifié",
-  "trigger.tick.alias": "Réévaluation périodique (toutes les minutes)",
+  "trigger.tick.alias": "Réévaluation périodique",
 
-  "condition.delta_available.alias": "La différence de température est disponible",
-  "condition.eval_interval.alias": "Intervalle de réévaluation respecté"
+  "condition.delta_available.alias": "La différence de température est disponible"
 }
