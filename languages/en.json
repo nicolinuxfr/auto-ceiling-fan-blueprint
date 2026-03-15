@@ -1,10 +1,10 @@
 {
   "blueprint.name": "Auto Ceiling Fan Controller",
-  "blueprint.description": "This blueprint automatically controls a ceiling fan based on the temperature difference between the ceiling and the ambient temperature. Without an AC mode entity, it determines the rotation direction based on the season, automatically detecting the hemisphere from your Home Assistant location. It supports heating and cooling modes with configurable speed thresholds.",
+  "blueprint.description": "This blueprint automatically controls one or more ceiling fans based on the temperature difference between the ceiling and the ambient temperature. Without an AC mode entity, it determines the rotation direction based on the season, automatically detecting the hemisphere from your Home Assistant location. It supports two fan speeds (normal and fast), with an optional silent mode that limits the fans to normal speed only.",
   "blueprint.version.line": "Version: {version}",
 
-  "input.fan_entity.name": "Fan to control",
-  "input.fan_entity.description": "The ceiling fan entity to control with this automation.",
+  "input.fan_entities.name": "Fans to control",
+  "input.fan_entities.description": "Select one or more ceiling fan entities or fan groups to control with this automation.",
 
   "input.temp_sensors.name": "Temperature sensors",
   "input.temp_sensors.description": "Select temperature sensors and/or sensor groups. The automation computes min and max from all values (expanding groups automatically). At least 2 distinct temperature values are required for the automation to work.",
@@ -25,33 +25,27 @@
 
   "input.threshold_settings.name": "Temperature thresholds",
 
-  "input.threshold_stop.name": "Stop threshold",
-  "input.threshold_stop.description": "The fan turns off when the temperature delta falls below this value.",
+  "input.threshold_off.name": "Off threshold",
+  "input.threshold_off.description": "The fan turns off when the temperature delta falls below this value.",
 
-  "input.threshold_start_normal.name": "Normal start threshold",
-  "input.threshold_start_normal.description": "The fan starts at medium speed when the delta exceeds this value (silent mode off).",
+  "input.threshold_normal.name": "Normal speed threshold",
+  "input.threshold_normal.description": "The fan starts at normal speed when the delta exceeds this value.",
 
-  "input.threshold_start_silent.name": "Silent start threshold",
-  "input.threshold_start_silent.description": "The fan starts at medium speed when the delta exceeds this value (silent mode active).",
-
-  "input.threshold_high.name": "High speed threshold",
-  "input.threshold_high.description": "The fan runs at high speed when the delta exceeds this value.",
+  "input.threshold_fast.name": "Fast speed threshold",
+  "input.threshold_fast.description": "The fan switches to fast speed when the delta exceeds this value (disabled during silent mode).",
 
   "input.speed_settings.name": "Fan speeds",
 
-  "input.speed_low.name": "Low speed",
-  "input.speed_low.description": "Fan percentage used in the hysteresis zone (between stop and start thresholds).",
+  "input.speed_normal.name": "Normal speed",
+  "input.speed_normal.description": "Fan percentage used in normal running conditions.",
 
-  "input.speed_medium.name": "Medium speed",
-  "input.speed_medium.description": "Fan percentage used in normal running conditions.",
-
-  "input.speed_high.name": "High speed",
-  "input.speed_high.description": "Fan percentage used when the delta exceeds the high speed threshold.",
+  "input.speed_fast.name": "Fast speed",
+  "input.speed_fast.description": "Fan percentage used when the delta exceeds the fast speed threshold (not used during silent mode).",
 
   "input.silent_mode_section.name": "Silent mode",
 
   "input.silent_mode_entity.name": "Silent mode entity",
-  "input.silent_mode_entity.description": "An input_boolean or binary_sensor that enables silent mode (e.g. TV on). When active, the fan only starts when the delta exceeds the silent start threshold. Leave empty to disable.",
+  "input.silent_mode_entity.description": "An input_boolean or binary_sensor that enables silent mode (e.g. TV on). When active, the fan is limited to normal speed only. Leave empty to disable.",
 
   "input.eval_interval.name": "Re-evaluation interval",
   "input.eval_interval.description": "How often the automation re-evaluates the fan state. An immediate evaluation is still triggered on HA start, and on every AC mode or silent mode change.",

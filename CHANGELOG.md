@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.3.3
+
+- Can select multiple fans (or a group of fans) ;
+- Simplify the handling of thresholds and speeds : only two now, the quiet mode always use the loweest speed.
+
 ## 2026.3.2
 
 - Less executions of the automation :

@@ -7,7 +7,7 @@
 https://raw.githubusercontent.com/nicolinuxfr/auto-ceiling-fan-blueprint/gh-pages/fr/ceiling_fan.yaml
 ```
 
-Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de la différence de température (delta) entre le plafond et l'ambiance. Il aide à homogénéiser la température d'une pièce en faisant tourner le ventilateur à la bonne vitesse et dans le bon sens.
+Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température (delta) entre le plafond et l'ambiance. Il aide à homogénéiser la température d'une pièce en faisant tourner les ventilateurs à la bonne vitesse et dans le bon sens.
 
 ## Comment ça fonctionne
 
@@ -16,11 +16,11 @@ Ce blueprint contrôle automatiquement un ventilateur de plafond en fonction de 
    - **Sans entité de mode PAC** : le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).
    - **Avec entité de mode PAC** : le sens est contrôlé par une entité `input_select`.
 3. Il ajuste la vitesse du ventilateur selon des seuils configurables :
-   - Delta sous le **seuil d'arrêt** (défaut 0.8°C) : ventilateur arrêté.
-   - Delta dans la **zone d'hystérésis** (seuil arrêt → seuil démarrage) : **vitesse basse** (16%).
-   - Delta au-dessus du **seuil de démarrage** (défaut 2.0°C) : **vitesse moyenne** (33%).
-   - Delta au-dessus du **seuil de haute vitesse** (défaut 5.0°C) : **haute vitesse** (67%).
-4. **Mode silencieux** optionnel : quand actif (ex. TV allumée), le seuil de démarrage est relevé pour éviter le bruit.
+   - Delta sous le **seuil d'arrêt** (défaut 1.0°C) : ventilateur arrêté.
+   - Delta dans la **zone d'hystérésis** (seuil arrêt → seuil normal) : le ventilateur reste à **vitesse normale** s'il tourne déjà, ne démarre pas.
+   - Delta au-dessus du **seuil normal** (défaut 2.0°C) : **vitesse normale** (33%).
+   - Delta au-dessus du **seuil rapide** (défaut 4.0°C) : **vitesse rapide** (67%).
+4. **Mode silencieux** optionnel : quand actif (ex. TV allumée), les ventilateurs sont limités à la vitesse normale uniquement (la vitesse rapide est désactivée).
 
 ## Sources de température
 
@@ -36,19 +36,17 @@ Au moins 2 valeurs de température distinctes sont nécessaires. Si une seule va
 
 | Input | Description | Défaut |
 |---|---|---|
-| Ventilateur | Le ventilateur de plafond à contrôler | — |
+| Ventilateurs | Un ou plusieurs ventilateurs de plafond ou groupes à contrôler | — |
 | Capteurs de température | Capteurs de température et/ou groupes de capteurs | — |
 | Entité mode PAC | input_select optionnel (chauffage/clim/éteint) | — |
 | État chauffage | Valeur de l'état pour le mode chauffage | `Chauffage` |
 | État climatisation | Valeur de l'état pour le mode climatisation | `Climatisation` |
 | État éteint | Valeur de l'état pour le mode éteint | `Éteint` |
-| Seuil d'arrêt | Delta en-dessous duquel le ventilateur s'arrête | 0.8°C |
-| Seuil de démarrage normal | Delta au-dessus duquel le ventilateur démarre | 2.0°C |
-| Seuil de démarrage silencieux | Delta au-dessus duquel il démarre (mode silencieux) | 3.5°C |
-| Seuil de haute vitesse | Delta au-dessus duquel il tourne à haute vitesse | 5.0°C |
-| Vitesse basse | Vitesse dans la zone d'hystérésis | 16% |
-| Vitesse moyenne | Vitesse en fonctionnement normal | 33% |
-| Haute vitesse | Vitesse quand le delta est élevé | 67% |
+| Seuil d'arrêt | Delta en-dessous duquel le ventilateur s'arrête | 1.0°C |
+| Seuil de vitesse normale | Delta au-dessus duquel le ventilateur démarre | 2.0°C |
+| Seuil de vitesse rapide | Delta au-dessus duquel il tourne à vitesse rapide | 4.0°C |
+| Vitesse normale | Vitesse en fonctionnement normal | 33% |
+| Vitesse rapide | Vitesse quand le delta est élevé | 67% |
 | Entité mode silencieux | input_boolean ou binary_sensor (ex. TV allumée) | — |
 
 ## Limitations connues

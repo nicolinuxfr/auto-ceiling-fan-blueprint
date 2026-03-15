@@ -7,7 +7,7 @@
 https://raw.githubusercontent.com/nicolinuxfr/auto-ceiling-fan-blueprint/gh-pages/en/ceiling_fan.yaml
 ```
 
-This blueprint automatically controls a ceiling fan based on the temperature difference (delta) between the ceiling and the ambient temperature. It helps homogenize room temperature by running the fan at the right speed and direction.
+This blueprint automatically controls one or more ceiling fans based on the temperature difference (delta) between the ceiling and the ambient temperature. It helps homogenize room temperature by running the fans at the right speed and direction.
 
 ## How it works
 
@@ -16,11 +16,11 @@ This blueprint automatically controls a ceiling fan based on the temperature dif
    - **Without AC mode entity**: direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).
    - **With AC mode entity**: direction is controlled by an `input_select` entity.
 3. It adjusts fan speed based on configurable thresholds:
-   - Delta below **stop threshold** (default 0.8°C): fan turns off.
-   - Delta in **hysteresis zone** (stop → start threshold): fan runs at **low speed** (16%).
-   - Delta above **start threshold** (default 2.0°C): fan runs at **medium speed** (33%).
-   - Delta above **high speed threshold** (default 5.0°C): fan runs at **high speed** (67%).
-4. Optional **silent mode**: when active (e.g. TV is on), the start threshold is raised to avoid noise.
+   - Delta below **off threshold** (default 1.0°C): fan turns off.
+   - Delta in **hysteresis zone** (off → normal threshold): fan stays at **normal speed** if already running, does not start.
+   - Delta above **normal threshold** (default 2.0°C): fan runs at **normal speed** (33%).
+   - Delta above **fast threshold** (default 4.0°C): fan runs at **fast speed** (67%).
+4. Optional **silent mode**: when active (e.g. TV is on), the fans are limited to normal speed only (fast speed is disabled).
 
 ## Temperature sources
 
@@ -36,19 +36,17 @@ At least 2 distinct temperature values are required. If only one value is availa
 
 | Input | Description | Default |
 |---|---|---|
-| Fan entity | The ceiling fan to control | — |
+| Fan entities | One or more ceiling fans or fan groups to control | — |
 | Temperature sensors | Temperature sensors and/or sensor groups | — |
 | AC mode entity | Optional input_select for heating/cooling/off | — |
 | Heating state | State value for heating mode | `Chauffage` |
 | Cooling state | State value for cooling mode | `Climatisation` |
 | Off state | State value for off mode | `Éteint` |
-| Stop threshold | Delta below which fan stops | 0.8°C |
-| Normal start threshold | Delta above which fan starts (normal mode) | 2.0°C |
-| Silent start threshold | Delta above which fan starts (silent mode) | 3.5°C |
-| High speed threshold | Delta above which fan runs at high speed | 5.0°C |
-| Low speed | Fan speed in hysteresis zone | 16% |
-| Medium speed | Fan speed in normal operation | 33% |
-| High speed | Fan speed at high delta | 67% |
+| Off threshold | Delta below which fan stops | 1.0°C |
+| Normal speed threshold | Delta above which fan starts at normal speed | 2.0°C |
+| Fast speed threshold | Delta above which fan runs at fast speed | 4.0°C |
+| Normal speed | Fan speed in normal operation | 33% |
+| Fast speed | Fan speed at high delta | 67% |
 | Silent mode entity | input_boolean or binary_sensor (e.g. TV on) | — |
 
 ## Known limitations

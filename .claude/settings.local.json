@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python3 scripts/generate_blueprints.py --filename ceiling_fan.yaml)",
       "WebSearch",
-      "Bash(python3 scripts/generate_blueprints.py)"
+      "Bash(python3 scripts/generate_blueprints.py)",
+      "Bash(find /Users/nicolas/Developer/domotique/auto-ceiling-fan-blueprint -not -path */.*)"
     ]
   }
 }

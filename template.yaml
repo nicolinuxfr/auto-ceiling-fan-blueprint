@@ -8,12 +8,14 @@ blueprint:
   homeassistant:
     min_version: 2024.6.0
   input:
-    fan_entity:
-      name: [[input.fan_entity.name]]
-      description: [[input.fan_entity.description]]
+    fan_entities:
+      name: [[input.fan_entities.name]]
+      description: [[input.fan_entities.description]]
       selector:
         entity:
-          domain: fan
+          multiple: true
+          filter:
+            - domain: fan
 
     temp_sensors:
       name: [[input.temp_sensors.name]]
@@ -64,9 +66,9 @@ blueprint:
       icon: mdi:tune
       collapsed: true
       input:
-        threshold_stop:
-          name: [[input.threshold_stop.name]]
-          description: [[input.threshold_stop.description]]
+        threshold_off:
+          name: [[input.threshold_off.name]]
+          description: [[input.threshold_off.description]]
           default: 1.0
           selector:
             number:
@@ -76,9 +78,9 @@ blueprint:
               mode: box
               unit_of_measurement: "°C"
 
-        threshold_start_normal:
-          name: [[input.threshold_start_normal.name]]
-          description: [[input.threshold_start_normal.description]]
+        threshold_normal:
+          name: [[input.threshold_normal.name]]
+          description: [[input.threshold_normal.description]]
           default: 2.0
           selector:
             number:
@@ -88,21 +90,9 @@ blueprint:
               mode: box
               unit_of_measurement: "°C"
 
-        threshold_start_silent:
-          name: [[input.threshold_start_silent.name]]
-          description: [[input.threshold_start_silent.description]]
-          default: 3.0
-          selector:
-            number:
-              min: 0.0
-              max: 10.0
-              step: 0.5
-              mode: box
-              unit_of_measurement: "°C"
-
-        threshold_high:
-          name: [[input.threshold_high.name]]
-          description: [[input.threshold_high.description]]
+        threshold_fast:
+          name: [[input.threshold_fast.name]]
+          description: [[input.threshold_fast.description]]
           default: 4.0
           selector:
             number:
@@ -117,21 +107,9 @@ blueprint:
       icon: mdi:fan
       collapsed: true
       input:
-        speed_low:
-          name: [[input.speed_low.name]]
-          description: [[input.speed_low.description]]
-          default: 16
-          selector:
-            number:
-              min: 1
-              max: 100
-              step: 1
-              mode: slider
-              unit_of_measurement: "%"
-
-        speed_medium:
-          name: [[input.speed_medium.name]]
-          description: [[input.speed_medium.description]]
+        speed_normal:
+          name: [[input.speed_normal.name]]
+          description: [[input.speed_normal.description]]
           default: 33
           selector:
             number:
@@ -141,9 +119,9 @@ blueprint:
               mode: slider
               unit_of_measurement: "%"
 
-        speed_high:
-          name: [[input.speed_high.name]]
-          description: [[input.speed_high.description]]
+        speed_fast:
+          name: [[input.speed_fast.name]]
+          description: [[input.speed_fast.description]]
           default: 67
           selector:
             number:
@@ -183,17 +161,15 @@ blueprint:
 mode: restart
 
 variables:
-  fan_entity_id: !input fan_entity
+  fan_entity_ids: !input fan_entities
   ac_select_id: !input ac_mode_selector
   temp_sensors_ids: !input temp_sensors
   silent_entity_id: !input silent_mode_entity
-  thr_stop: !input threshold_stop
-  thr_start_normal: !input threshold_start_normal
-  thr_start_silent: !input threshold_start_silent
-  thr_high: !input threshold_high
-  spd_low: !input speed_low
-  spd_medium: !input speed_medium
-  spd_high: !input speed_high
+  thr_off: !input threshold_off
+  thr_normal: !input threshold_normal
+  thr_fast: !input threshold_fast
+  spd_normal: !input speed_normal
+  spd_fast: !input speed_fast
   state_heating: !input ac_state_heating
   state_cooling: !input ac_state_cooling
   state_off: !input ac_state_off
@@ -238,8 +214,11 @@ variables:
   silent_active: >
     {{ silent_entity_id not in ['', none] and is_state(silent_entity_id, 'on') }}
 
-  effective_start_threshold: >
-    {{ thr_start_silent | float(3.5) if silent_active else thr_start_normal | float(2.0) }}
+  fan_targets: >
+    {{ expand(fan_entity_ids) | map(attribute='entity_id') | list }}
+
+  any_fan_on: >
+    {{ expand(fan_entity_ids) | selectattr('state', 'eq', 'on') | list | count > 0 }}
 
   delta_available: >
     {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
@@ -295,7 +274,7 @@ action:
     then:
       - action: fan.set_direction
         target:
-          entity_id: "{{ fan_entity_id }}"
+          entity_id: "{{ fan_targets }}"
         data:
           direction: "{{ fan_direction | trim }}"
 
@@ -306,49 +285,49 @@ action:
         sequence:
           - action: fan.turn_off
             target:
-              entity_id: "{{ fan_entity_id }}"
+              entity_id: "{{ fan_targets }}"
 
       - conditions:
           - condition: template
-            value_template: "{{ (temp_delta | float(0)) < (thr_stop | float(0.8)) }}"
+            value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
         sequence:
           - action: fan.turn_off
             target:
-              entity_id: "{{ fan_entity_id }}"
-
-      - conditions:
-          - condition: template
-            value_template: "{{ (temp_delta | float(0)) >= (thr_high | float(5.0)) }}"
-        sequence:
-          - action: fan.turn_on
-            target:
-              entity_id: "{{ fan_entity_id }}"
-            data:
-              percentage: "{{ spd_high | int(67) }}"
+              entity_id: "{{ fan_targets }}"
 
       - conditions:
           - condition: template
             value_template: >
-              {{ (temp_delta | float(0)) >= (effective_start_threshold | float(2.0))
-                 and (temp_delta | float(0)) < (thr_high | float(5.0)) }}
+              {{ (temp_delta | float(0)) >= (thr_fast | float(4.0))
+                 and not silent_active }}
         sequence:
           - action: fan.turn_on
             target:
-              entity_id: "{{ fan_entity_id }}"
+              entity_id: "{{ fan_targets }}"
             data:
-              percentage: "{{ spd_medium | int(33) }}"
+              percentage: "{{ spd_fast | int(67) }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) >= (thr_normal | float(2.0)) }}"
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: "{{ fan_targets }}"
+            data:
+              percentage: "{{ spd_normal | int(33) }}"
 
       - conditions:
           - condition: template
             value_template: >
-              {{ (temp_delta | float(0)) >= (thr_stop | float(0.8))
-                 and (temp_delta | float(0)) < (effective_start_threshold | float(2.0))
-                 and is_state(fan_entity_id, 'on') }}
+              {{ (temp_delta | float(0)) >= (thr_off | float(1.0))
+                 and (temp_delta | float(0)) < (thr_normal | float(2.0))
+                 and any_fan_on }}
         sequence:
           - action: fan.set_percentage
             target:
-              entity_id: "{{ fan_entity_id }}"
+              entity_id: "{{ fan_targets }}"
             data:
-              percentage: "{{ spd_low | int(16) }}"
+              percentage: "{{ spd_normal | int(33) }}"
 
     default: []
