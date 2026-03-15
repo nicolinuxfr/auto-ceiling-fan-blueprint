@@ -254,7 +254,9 @@ action:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
+            value_template: >
+              {{ silent_active
+                 and (temp_delta | float(0)) < (thr_fast | float(4.0)) }}
         sequence:
           - action: fan.turn_off
             target:
@@ -263,8 +265,26 @@ action:
       - conditions:
           - condition: template
             value_template: >
-              {{ (temp_delta | float(0)) >= (thr_fast | float(4.0))
-                 and not silent_active }}
+              {{ silent_active
+                 and (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: "{{ fan_targets }}"
+            data:
+              percentage: "{{ spd_normal | int(33) }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
+        sequence:
+          - action: fan.turn_off
+            target:
+              entity_id: "{{ fan_targets }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}"
         sequence:
           - action: fan.turn_on
             target:

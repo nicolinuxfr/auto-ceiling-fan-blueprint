@@ -1,6 +1,6 @@
 {
   "blueprint.name": "Contrôleur automatique de ventilateur de plafond",
-  "blueprint.description": "Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température entre le plafond et l'ambiance. Il ajuste le sens de rotation automatiquement selon la saison ou en fonction d'un thermostat. Il supporte deux vitesses (normale et rapide), avec un mode silencieux optionnel qui limite les ventilateurs à la vitesse normale uniquement.",
+  "blueprint.description": "Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température entre le plafond et l'ambiance. Il ajuste le sens de rotation automatiquement selon la saison ou en fonction d'un thermostat. Il supporte deux vitesses (normale et rapide), avec un mode silencieux optionnel qui utilise le seuil de vitesse rapide comme unique seuil : le ventilateur ne démarre (à vitesse normale) que lorsque le delta dépasse ce seuil et s'éteint en dessous.",
   "blueprint.version.line": "Version : {version}",
 
   "input.fan_entities.name": "Ventilateurs à contrôler",
@@ -23,7 +23,7 @@
   "input.threshold_normal.description": "Le ventilateur démarre à vitesse normale quand le delta dépasse ce seuil.",
 
   "input.threshold_fast.name": "Seuil de vitesse rapide",
-  "input.threshold_fast.description": "Le ventilateur passe en vitesse rapide quand le delta dépasse ce seuil (désactivé en mode silencieux).",
+  "input.threshold_fast.description": "Le ventilateur passe en vitesse rapide quand le delta dépasse ce seuil. En mode silencieux, ce seuil est utilisé pour démarrer le ventilateur à vitesse normale et l'éteindre en dessous.",
 
   "input.speed_settings.name": "Vitesses du ventilateur",
 
@@ -36,7 +36,7 @@
   "input.silent_mode_section.name": "Mode silencieux",
 
   "input.silent_mode_entity.name": "Entité de mode silencieux",
-  "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur est limité à la vitesse normale uniquement. Laisser vide pour désactiver cette fonctionnalité.",
+  "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne fonctionne qu'au-dessus du seuil de vitesse rapide, à vitesse normale uniquement. Laisser vide pour désactiver cette fonctionnalité.",
 
   "input.eval_interval.name": "Intervalle de réévaluation",
   "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement du thermostat ou du mode silencieux.",

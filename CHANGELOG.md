@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.3.5
+
+- Silent mode now uses the fast speed threshold, to minimize when it activates the fan. The idea is to switch it off most of the time and to start the fan only when the delta is huge.
+
 ## 2026.3.4
 
 - Better fan direction handling :
