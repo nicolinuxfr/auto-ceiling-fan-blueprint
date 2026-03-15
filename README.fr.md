@@ -13,8 +13,8 @@ Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond e
 
 1. Le blueprint calcule un delta de température entre les capteurs plafond et ambiance.
 2. Il détermine le sens de rotation du ventilateur :
-   - **Sans entité de mode PAC** : le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).
-   - **Avec entité de mode PAC** : le sens est contrôlé par une entité `input_select`.
+   - **Par saison (par défaut)** : quand aucun thermostat n'est renseigné, le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).
+   - **Par thermostat** : quand une entité climate est renseignée, le sens est basé sur l'action en cours du thermostat. En mode chauffage actif, le ventilateur tourne en sens inverse ; sinon il tourne en sens normal.
 3. Il ajuste la vitesse du ventilateur selon des seuils configurables :
    - Delta sous le **seuil d'arrêt** (défaut 1.0°C) : ventilateur arrêté.
    - Delta dans la **zone d'hystérésis** (seuil arrêt → seuil normal) : le ventilateur reste à **vitesse normale** s'il tourne déjà, ne démarre pas.
@@ -38,10 +38,7 @@ Au moins 2 valeurs de température distinctes sont nécessaires. Si une seule va
 |---|---|---|
 | Ventilateurs | Un ou plusieurs ventilateurs de plafond ou groupes à contrôler | — |
 | Capteurs de température | Capteurs de température et/ou groupes de capteurs | — |
-| Entité mode PAC | input_select optionnel (chauffage/clim/éteint) | — |
-| État chauffage | Valeur de l'état pour le mode chauffage | `Chauffage` |
-| État climatisation | Valeur de l'état pour le mode climatisation | `Climatisation` |
-| État éteint | Valeur de l'état pour le mode éteint | `Éteint` |
+| Entité thermostat | Entité climate optionnelle pour le sens de rotation ; si vide, la saison est utilisée | — |
 | Seuil d'arrêt | Delta en-dessous duquel le ventilateur s'arrête | 1.0°C |
 | Seuil de vitesse normale | Delta au-dessus duquel le ventilateur démarre | 2.0°C |
 | Seuil de vitesse rapide | Delta au-dessus duquel il tourne à vitesse rapide | 4.0°C |
@@ -52,4 +49,4 @@ Au moins 2 valeurs de température distinctes sont nécessaires. Si une seule va
 ## Limitations connues
 
 - Les blueprints ne supportent pas la validation d'un nombre minimum de sélections : l'interface exige au moins 1 capteur, mais l'automatisation a besoin d'au moins 2 valeurs de température pour calculer un delta. Si les valeurs sont insuffisantes, l'automatisation ne se déclenche tout simplement pas.
-- La modification du sens de rotation peut ne pas être supportée par toutes les intégrations de ventilateurs quand le ventilateur est arrêté.
+- Le sens de rotation n'est appliqué qu'aux ventilateurs qui le supportent (vérifié via `supported_features`). Les ventilateurs sans support de direction sont contrôlés normalement pour la vitesse et l'allumage/extinction.

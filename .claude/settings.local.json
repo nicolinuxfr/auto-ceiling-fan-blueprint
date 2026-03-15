@@ -4,7 +4,15 @@
       "Bash(python3 scripts/generate_blueprints.py --filename ceiling_fan.yaml)",
       "WebSearch",
       "Bash(python3 scripts/generate_blueprints.py)",
-      "Bash(find /Users/nicolas/Developer/domotique/auto-ceiling-fan-blueprint -not -path */.*)"
+      "Bash(find /Users/nicolas/Developer/domotique/auto-ceiling-fan-blueprint -not -path */.*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:developers.home-assistant.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s https://api.github.com/search/code?q=DIRECTION_FORWARD+repo:home-assistant/core+path:homeassistant/components -H 'Accept: application/vnd.github.v3+json')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(i[''''path'''']\\) for i in d.get\\(''''items'''',[]\\)]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)[:3000]\\)\")",
+      "Bash(gh search:*)",
+      "Bash(gh api:*)"
     ]
   }
 }

@@ -12,9 +12,9 @@ This blueprint automatically controls one or more ceiling fans based on the temp
 ## How it works
 
 1. The blueprint calculates a temperature delta between ceiling and ambient sensors.
-2. It determines the fan direction:
-   - **Without AC mode entity**: direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).
-   - **With AC mode entity**: direction is controlled by an `input_select` entity.
+2. It determines the fan rotation direction:
+   - **Season-based (default)**: when no thermostat entity is set, direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).
+   - **Thermostat-based**: when a climate entity is set, direction is based on the thermostat's current action. When actively heating, the fan rotates in reverse; otherwise it rotates forward.
 3. It adjusts fan speed based on configurable thresholds:
    - Delta below **off threshold** (default 1.0°C): fan turns off.
    - Delta in **hysteresis zone** (off → normal threshold): fan stays at **normal speed** if already running, does not start.
@@ -38,10 +38,7 @@ At least 2 distinct temperature values are required. If only one value is availa
 |---|---|---|
 | Fan entities | One or more ceiling fans or fan groups to control | — |
 | Temperature sensors | Temperature sensors and/or sensor groups | — |
-| AC mode entity | Optional input_select for heating/cooling/off | — |
-| Heating state | State value for heating mode | `Chauffage` |
-| Cooling state | State value for cooling mode | `Climatisation` |
-| Off state | State value for off mode | `Éteint` |
+| Thermostat entity | Optional climate entity for direction control; if empty, season is used | — |
 | Off threshold | Delta below which fan stops | 1.0°C |
 | Normal speed threshold | Delta above which fan starts at normal speed | 2.0°C |
 | Fast speed threshold | Delta above which fan runs at fast speed | 4.0°C |
@@ -52,4 +49,4 @@ At least 2 distinct temperature values are required. If only one value is availa
 ## Known limitations
 
 - Blueprints do not support minimum selection count validation: the UI requires at least 1 sensor, but the automation needs at least 2 temperature values to compute a delta. If insufficient values are found, the automation simply does not trigger.
-- Fan direction changes may not be supported by all fan integrations when the fan is off.
+- Fan direction is only set on fans that support it (checked via `supported_features`). Fans without direction support are controlled normally for speed and on/off.

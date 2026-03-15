@@ -27,39 +27,19 @@ blueprint:
             - domain: sensor
               device_class: temperature
 
-    climate_control:
-      name: [[input.climate_control.name]]
-      icon: mdi:air-conditioner
+    direction_section:
+      name: [[input.direction_section.name]]
+      icon: mdi:rotate-3d-variant
       collapsed: true
       input:
-        ac_mode_selector:
-          name: [[input.ac_mode_selector.name]]
-          description: [[input.ac_mode_selector.description]]
+        climate_entity:
+          name: [[input.climate_entity.name]]
+          description: [[input.climate_entity.description]]
           default: ""
           selector:
             entity:
-              domain: input_select
-
-        ac_state_heating:
-          name: [[input.ac_state_heating.name]]
-          description: [[input.ac_state_heating.description]]
-          default: "Chauffage"
-          selector:
-            text:
-
-        ac_state_cooling:
-          name: [[input.ac_state_cooling.name]]
-          description: [[input.ac_state_cooling.description]]
-          default: "Climatisation"
-          selector:
-            text:
-
-        ac_state_off:
-          name: [[input.ac_state_off.name]]
-          description: [[input.ac_state_off.description]]
-          default: "Éteint"
-          selector:
-            text:
+              filter:
+                - domain: climate
 
     threshold_settings:
       name: [[input.threshold_settings.name]]
@@ -162,7 +142,7 @@ mode: restart
 
 variables:
   fan_entity_ids: !input fan_entities
-  ac_select_id: !input ac_mode_selector
+  climate_id: !input climate_entity
   temp_sensors_ids: !input temp_sensors
   silent_entity_id: !input silent_mode_entity
   thr_off: !input threshold_off
@@ -170,9 +150,6 @@ variables:
   thr_fast: !input threshold_fast
   spd_normal: !input speed_normal
   spd_fast: !input speed_fast
-  state_heating: !input ac_state_heating
-  state_cooling: !input ac_state_cooling
-  state_off: !input ac_state_off
 
   temp_delta: >
     {% set temps = expand(temp_sensors_ids)
@@ -186,27 +163,18 @@ variables:
       {{ 0 }}
     {% endif %}
 
-  ac_current_state: >
-    {% if ac_select_id not in ['', none] %}
-      {{ states(ac_select_id) }}
-    {% else %}
-      {{ none }}
-    {% endif %}
-
   is_heating_mode: >
-    {% if ac_select_id not in ['', none] %}
-      {{ ac_current_state == state_heating }}
+    {% if climate_id not in ['', none] %}
+      {% set action = state_attr(climate_id, 'hvac_action') %}
+      {% if action not in [none, 'unavailable', 'unknown'] %}
+        {{ action == 'heating' }}
+      {% else %}
+        {{ states(climate_id) == 'heat' }}
+      {% endif %}
     {% else %}
       {% set lat = state_attr('zone.home', 'latitude') | float(48) %}
       {% set winter_months = [11, 12, 1, 2, 3] if lat >= 0 else [5, 6, 7, 8, 9] %}
       {{ now().month in winter_months }}
-    {% endif %}
-
-  is_off_mode: >
-    {% if ac_select_id not in ['', none] %}
-      {{ ac_current_state == state_off }}
-    {% else %}
-      false
     {% endif %}
 
   fan_direction: "{{ 'reverse' if is_heating_mode else 'forward' }}"
@@ -216,6 +184,12 @@ variables:
 
   fan_targets: >
     {{ expand(fan_entity_ids) | map(attribute='entity_id') | list }}
+
+  fan_direction_targets: >
+    {{ expand(fan_entity_ids)
+       | selectattr('attributes.supported_features', 'defined')
+       | selectattr('attributes.supported_features', 'bitwise_and', 4)
+       | map(attribute='entity_id') | list }}
 
   any_fan_on: >
     {{ expand(fan_entity_ids) | selectattr('state', 'eq', 'on') | list | count > 0 }}
@@ -244,7 +218,7 @@ trigger:
     alias: "[[trigger.climate.alias]]"
     event_type: state_changed
     event_data:
-      entity_id: !input ac_mode_selector
+      entity_id: !input climate_entity
     id: climate_changed
 
   - trigger: event
@@ -270,23 +244,15 @@ condition:
 action:
   - if:
       - condition: template
-        value_template: "{{ not is_off_mode }}"
+        value_template: "{{ fan_direction_targets | count > 0 }}"
     then:
       - action: fan.set_direction
         target:
-          entity_id: "{{ fan_targets }}"
+          entity_id: "{{ fan_direction_targets }}"
         data:
           direction: "{{ fan_direction | trim }}"
 
   - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ is_off_mode }}"
-        sequence:
-          - action: fan.turn_off
-            target:
-              entity_id: "{{ fan_targets }}"
-
       - conditions:
           - condition: template
             value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"

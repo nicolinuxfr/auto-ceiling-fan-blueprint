@@ -1,6 +1,6 @@
 {
   "blueprint.name": "Contrôleur automatique de ventilateur de plafond",
-  "blueprint.description": "Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température entre le plafond et l'ambiance. Sans entité de mode PAC, il détermine le sens de rotation selon la saison, en détectant automatiquement l'hémisphère depuis la localisation de votre instance Home Assistant. Il supporte deux vitesses (normale et rapide), avec un mode silencieux optionnel qui limite les ventilateurs à la vitesse normale uniquement.",
+  "blueprint.description": "Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température entre le plafond et l'ambiance. Il ajuste le sens de rotation automatiquement selon la saison ou en fonction d'un thermostat. Il supporte deux vitesses (normale et rapide), avec un mode silencieux optionnel qui limite les ventilateurs à la vitesse normale uniquement.",
   "blueprint.version.line": "Version : {version}",
 
   "input.fan_entities.name": "Ventilateurs à contrôler",
@@ -9,19 +9,10 @@
   "input.temp_sensors.name": "Capteurs de température",
   "input.temp_sensors.description": "Sélectionnez des capteurs de température et/ou des groupes de capteurs. L'automatisation calcule le min et le max de l'ensemble des valeurs (en développant automatiquement les groupes). Au moins 2 valeurs de température distinctes sont nécessaires au fonctionnement.",
 
-  "input.climate_control.name": "Contrôle du mode PAC",
+  "input.direction_section.name": "Sens de rotation",
 
-  "input.ac_mode_selector.name": "Entité de mode PAC (optionnel)",
-  "input.ac_mode_selector.description": "Un input_select qui indique le mode PAC en cours (Chauffage / Climatisation / Éteint). Si non renseigné, le sens de rotation est déterminé automatiquement selon la saison.",
-
-  "input.ac_state_heating.name": "Valeur d'état chauffage",
-  "input.ac_state_heating.description": "La valeur exacte de l'input_select indiquant le mode chauffage. Le ventilateur tourne en sens inverse.",
-
-  "input.ac_state_cooling.name": "Valeur d'état climatisation",
-  "input.ac_state_cooling.description": "La valeur exacte de l'input_select indiquant le mode climatisation. Le ventilateur tourne en sens normal.",
-
-  "input.ac_state_off.name": "Valeur d'état éteint",
-  "input.ac_state_off.description": "La valeur exacte de l'input_select indiquant que le système est éteint. Le ventilateur s'arrête quelle que soit la différence de température.",
+  "input.climate_entity.name": "Entité thermostat (optionnel)",
+  "input.climate_entity.description": "Une entité climate utilisée pour déterminer le sens de rotation. Quand le thermostat chauffe activement, le ventilateur tourne en sens inverse ; sinon il tourne en sens normal. Si non renseigné, le sens est déterminé automatiquement selon la saison.",
 
   "input.threshold_settings.name": "Seuils de température",
 
@@ -48,11 +39,11 @@
   "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur est limité à la vitesse normale uniquement. Laisser vide pour désactiver cette fonctionnalité.",
 
   "input.eval_interval.name": "Intervalle de réévaluation",
-  "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement de mode PAC ou mode silencieux.",
+  "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement du thermostat ou du mode silencieux.",
 
   "trigger.ha_start.alias": "Démarrage de Home Assistant",
   "trigger.automations_reload.alias": "Rechargement des automatisations",
-  "trigger.climate.alias": "Mode PAC modifié",
+  "trigger.climate.alias": "État du thermostat modifié",
   "trigger.silent_mode.alias": "Mode silencieux modifié",
   "trigger.tick.alias": "Réévaluation périodique",
 

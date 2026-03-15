@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.3.4
+
+- Better fan direction handling :
+  - Only for fans that supports it, the automation won't break if you use some without it ;
+  - season-based by default (reverse in winter, forward otherwise or vice-versa depending of your hemisphere)
+  - climate-based if selected (reverse when heating, forward otherwise).
+
 ## 2026.3.3
 
 - Can select multiple fans (or a group of fans) ;
