@@ -186,10 +186,14 @@ variables:
     {{ expand(fan_entity_ids) | map(attribute='entity_id') | list }}
 
   fan_direction_targets: >
-    {{ expand(fan_entity_ids)
-       | selectattr('attributes.supported_features', 'defined')
-       | selectattr('attributes.supported_features', 'bitwise_and', 4)
-       | map(attribute='entity_id') | list }}
+    {% set ns = namespace(targets=[]) %}
+    {% for fan in expand(fan_entity_ids) %}
+      {% if fan.attributes.supported_features is defined
+            and fan.attributes.supported_features | bitwise_and(4) %}
+        {% set ns.targets = ns.targets + [fan.entity_id] %}
+      {% endif %}
+    {% endfor %}
+    {{ ns.targets }}
 
   any_fan_on: >
     {{ expand(fan_entity_ids) | selectattr('state', 'eq', 'on') | list | count > 0 }}
