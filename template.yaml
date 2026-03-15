@@ -234,26 +234,6 @@ condition:
     value_template: "{{ delta_available }}"
 
 action:
-  - variables:
-      fans_needing_direction: >
-        {% set ns = namespace(targets=[]) %}
-        {% for fan_id in fan_direction_targets %}
-          {% if state_attr(fan_id, 'direction') != fan_direction | trim %}
-            {% set ns.targets = ns.targets + [fan_id] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.targets }}
-
-  - if:
-      - condition: template
-        value_template: "{{ fans_needing_direction | count > 0 }}"
-    then:
-      - action: fan.set_direction
-        target:
-          entity_id: "{{ fans_needing_direction }}"
-        data:
-          direction: "{{ fan_direction | trim }}"
-
   - choose:
       - conditions:
           - condition: template
@@ -386,3 +366,24 @@ action:
                   percentage: "{{ spd_normal | int(33) }}"
 
     default: []
+
+  - variables:
+      fans_needing_direction: >
+        {% set ns = namespace(targets=[]) %}
+        {% for fan_id in fan_direction_targets %}
+          {% if states(fan_id) == 'on'
+             and state_attr(fan_id, 'direction') != fan_direction | trim %}
+            {% set ns.targets = ns.targets + [fan_id] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.targets }}
+
+  - if:
+      - condition: template
+        value_template: "{{ fans_needing_direction | count > 0 }}"
+    then:
+      - action: fan.set_direction
+        target:
+          entity_id: "{{ fans_needing_direction }}"
+        data:
+          direction: "{{ fan_direction | trim }}"
