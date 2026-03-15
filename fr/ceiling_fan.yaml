@@ -1,0 +1,389 @@
+blueprint:
+  name: "Contrôleur automatique de ventilateur de plafond (2026.3.6)"
+  description: |-
+    Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond en fonction de la différence de température entre le plafond et l'ambiance. Il ajuste le sens de rotation automatiquement selon la saison ou en fonction d'un thermostat. Il supporte deux vitesses (normale et rapide), avec un mode silencieux optionnel qui utilise le seuil de vitesse rapide comme unique seuil : le ventilateur ne démarre (à vitesse normale) que lorsque le delta dépasse ce seuil et s'éteint en dessous.
+
+    Version : 2026.3.6 — [Changelog](https://github.com/nicolinuxfr/auto-ceiling-fan-blueprint/blob/main/CHANGELOG.md#202636)
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+  input:
+    fan_entities:
+      name: Ventilateurs à contrôler
+      description: Sélectionnez un ou plusieurs ventilateurs de plafond ou groupes de ventilateurs à contrôler avec cette automatisation.
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: fan
+
+    temp_sensors:
+      name: Capteurs de température
+      description: Sélectionnez des capteurs de température et/ou des groupes de capteurs. L'automatisation calcule le min et le max de l'ensemble des valeurs (en développant automatiquement les groupes). Au moins 2 valeurs de température distinctes sont nécessaires au fonctionnement.
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: sensor
+              device_class: temperature
+
+    direction_section:
+      name: Sens de rotation
+      icon: mdi:rotate-3d-variant
+      collapsed: true
+      input:
+        climate_entity:
+          name: Entité thermostat (optionnel)
+          description: Une entité climate utilisée pour déterminer le sens de rotation. Quand le thermostat chauffe activement, le ventilateur tourne en sens inverse ; sinon il tourne en sens normal. Si non renseigné, le sens est déterminé automatiquement selon la saison.
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: climate
+
+    threshold_settings:
+      name: Seuils de température
+      icon: mdi:tune
+      collapsed: true
+      input:
+        threshold_off:
+          name: Seuil d'arrêt
+          description: Le ventilateur s'arrête quand la différence de température passe sous ce seuil.
+          default: 1.0
+          selector:
+            number:
+              min: 0.0
+              max: 5.0
+              step: 0.5
+              mode: box
+              unit_of_measurement: "°C"
+
+        threshold_normal:
+          name: Seuil de vitesse normale
+          description: Le ventilateur démarre à vitesse normale quand le delta dépasse ce seuil.
+          default: 2.0
+          selector:
+            number:
+              min: 0.0
+              max: 10.0
+              step: 0.5
+              mode: box
+              unit_of_measurement: "°C"
+
+        threshold_fast:
+          name: Seuil de vitesse rapide
+          description: Le ventilateur passe en vitesse rapide quand le delta dépasse ce seuil. En mode silencieux, ce seuil est utilisé pour démarrer le ventilateur à vitesse normale et l'éteindre en dessous.
+          default: 4.0
+          selector:
+            number:
+              min: 0.0
+              max: 15.0
+              step: 0.5
+              mode: box
+              unit_of_measurement: "°C"
+
+    speed_settings:
+      name: Vitesses du ventilateur
+      icon: mdi:fan
+      collapsed: true
+      input:
+        speed_normal:
+          name: Vitesse normale
+          description: Pourcentage du ventilateur en conditions normales de fonctionnement.
+          default: 33
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: slider
+              unit_of_measurement: "%"
+
+        speed_fast:
+          name: Vitesse rapide
+          description: Pourcentage du ventilateur quand le delta dépasse le seuil de vitesse rapide (non utilisé en mode silencieux).
+          default: 67
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: slider
+              unit_of_measurement: "%"
+
+    silent_mode_section:
+      name: Mode silencieux
+      icon: mdi:volume-off
+      collapsed: true
+      input:
+        silent_mode_entity:
+          name: Entité de mode silencieux
+          description: Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne fonctionne qu'au-dessus du seuil de vitesse rapide, à vitesse normale uniquement. Laisser vide pour désactiver cette fonctionnalité.
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: input_boolean
+                - domain: binary_sensor
+
+    eval_interval:
+      name: Intervalle de réévaluation
+      description: Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA et à chaque changement du mode silencieux.
+      default: 15
+      selector:
+        number:
+          min: 1
+          max: 1440
+          step: 1
+          mode: box
+          unit_of_measurement: "min"
+
+mode: restart
+
+variables:
+  fan_entity_ids: !input fan_entities
+  climate_id: !input climate_entity
+  temp_sensors_ids: !input temp_sensors
+  silent_entity_id: !input silent_mode_entity
+  thr_off: !input threshold_off
+  thr_normal: !input threshold_normal
+  thr_fast: !input threshold_fast
+  spd_normal: !input speed_normal
+  spd_fast: !input speed_fast
+
+  temp_delta: >
+    {% set temps = expand(temp_sensors_ids)
+       | map(attribute='state')
+       | map('float', none)
+       | reject('eq', none)
+       | list %}
+    {% if temps | count >= 2 %}
+      {{ (temps | max - temps | min) | round(2) }}
+    {% else %}
+      {{ 0 }}
+    {% endif %}
+
+  is_heating_mode: >
+    {% if climate_id not in ['', none] %}
+      {{ states(climate_id) == 'heat' }}
+    {% else %}
+      {% set lat = state_attr('zone.home', 'latitude') | float(48) %}
+      {% set winter_months = [11, 12, 1, 2, 3] if lat >= 0 else [5, 6, 7, 8, 9] %}
+      {{ now().month in winter_months }}
+    {% endif %}
+
+  fan_direction: "{{ 'reverse' if is_heating_mode else 'forward' }}"
+
+  silent_active: >
+    {{ silent_entity_id not in ['', none] and is_state(silent_entity_id, 'on') }}
+
+  fan_targets: >
+    {{ expand(fan_entity_ids) | map(attribute='entity_id') | list }}
+
+  fan_direction_targets: >
+    {% set ns = namespace(targets=[]) %}
+    {% for fan in expand(fan_entity_ids) %}
+      {% if fan.attributes.supported_features is defined
+            and fan.attributes.supported_features | bitwise_and(4) %}
+        {% set ns.targets = ns.targets + [fan.entity_id] %}
+      {% endif %}
+    {% endfor %}
+    {{ ns.targets }}
+
+  any_fan_on: >
+    {{ expand(fan_entity_ids) | selectattr('state', 'eq', 'on') | list | count > 0 }}
+
+  delta_available: >
+    {{ temp_delta not in [none, 'none', 'unknown', 'unavailable', ''] }}
+
+trigger_variables:
+  eval_interval_val: !input eval_interval
+
+trigger:
+  - trigger: homeassistant
+    alias: "Démarrage de Home Assistant"
+    event: start
+    id: ha_start
+
+  - trigger: event
+    alias: "Rechargement des automatisations"
+    event_type: call_service
+    event_data:
+      domain: automation
+      service: reload
+    id: automations_reload
+
+  - trigger: event
+    alias: "Mode silencieux modifié"
+    event_type: state_changed
+    event_data:
+      entity_id: !input silent_mode_entity
+    id: silent_changed
+
+  - trigger: template
+    alias: "Réévaluation périodique"
+    value_template: >
+      {% set interval = eval_interval_val | int(10) %}
+      {% set total_minutes = now().hour * 60 + now().minute %}
+      {{ total_minutes % interval == 0 }}
+    id: tick
+
+condition:
+  - condition: template
+    alias: "La différence de température est disponible"
+    value_template: "{{ delta_available }}"
+
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ silent_active
+                 and (temp_delta | float(0)) < (thr_fast | float(4.0)) }}
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ any_fan_on }}"
+            then:
+              - action: fan.turn_off
+                target:
+                  entity_id: "{{ fan_targets }}"
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ silent_active
+                 and (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}
+        sequence:
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ any_fan_on }}"
+            then:
+              - action: fan.turn_off
+                target:
+                  entity_id: "{{ fan_targets }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}"
+        sequence:
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_fast | int(67) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_fast | int(67) }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ (temp_delta | float(0)) >= (thr_normal | float(2.0)) }}"
+        sequence:
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ (temp_delta | float(0)) >= (thr_off | float(1.0))
+                 and (temp_delta | float(0)) < (thr_normal | float(2.0))
+                 and any_fan_on }}
+        sequence:
+          - variables:
+              fans_needing_pct: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_pct | count > 0 }}"
+            then:
+              - action: fan.set_percentage
+                target:
+                  entity_id: "{{ fans_needing_pct }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
+
+    default: []
+
+  - variables:
+      fans_needing_direction: >
+        {% set ns = namespace(targets=[]) %}
+        {% for fan_id in fan_direction_targets %}
+          {% if states(fan_id) == 'on'
+             and state_attr(fan_id, 'direction') != fan_direction | trim %}
+            {% set ns.targets = ns.targets + [fan_id] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.targets }}
+
+  - if:
+      - condition: template
+        value_template: "{{ fans_needing_direction | count > 0 }}"
+    then:
+      - action: fan.set_direction
+        target:
+          entity_id: "{{ fans_needing_direction }}"
+        data:
+          direction: "{{ fan_direction | trim }}"
