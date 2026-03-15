@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.3.6
+
+- Only send command to the fan if it's state is different (should help with crappy Tuya devices, ask me how I know…) ;
+- Remove the thermostat trigger, because it was too frequent for me : instead, the status will change when the automation updates at user request (15 min by default).
+
 ## 2026.3.5
 
 - Silent mode now uses the fast speed threshold, to minimize when it activates the fan. The idea is to switch it off most of the time and to start the fan only when the delta is huge.

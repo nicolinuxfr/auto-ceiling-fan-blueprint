@@ -214,13 +214,6 @@ trigger:
     id: automations_reload
 
   - trigger: event
-    alias: "[[trigger.climate.alias]]"
-    event_type: state_changed
-    event_data:
-      entity_id: !input climate_entity
-    id: climate_changed
-
-  - trigger: event
     alias: "[[trigger.silent_mode.alias]]"
     event_type: state_changed
     event_data:
@@ -241,13 +234,23 @@ condition:
     value_template: "{{ delta_available }}"
 
 action:
+  - variables:
+      fans_needing_direction: >
+        {% set ns = namespace(targets=[]) %}
+        {% for fan_id in fan_direction_targets %}
+          {% if state_attr(fan_id, 'direction') != fan_direction | trim %}
+            {% set ns.targets = ns.targets + [fan_id] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.targets }}
+
   - if:
       - condition: template
-        value_template: "{{ fan_direction_targets | count > 0 }}"
+        value_template: "{{ fans_needing_direction | count > 0 }}"
     then:
       - action: fan.set_direction
         target:
-          entity_id: "{{ fan_direction_targets }}"
+          entity_id: "{{ fans_needing_direction }}"
         data:
           direction: "{{ fan_direction | trim }}"
 
@@ -258,9 +261,13 @@ action:
               {{ silent_active
                  and (temp_delta | float(0)) < (thr_fast | float(4.0)) }}
         sequence:
-          - action: fan.turn_off
-            target:
-              entity_id: "{{ fan_targets }}"
+          - if:
+              - condition: template
+                value_template: "{{ any_fan_on }}"
+            then:
+              - action: fan.turn_off
+                target:
+                  entity_id: "{{ fan_targets }}"
 
       - conditions:
           - condition: template
@@ -268,39 +275,88 @@ action:
               {{ silent_active
                  and (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}
         sequence:
-          - action: fan.turn_on
-            target:
-              entity_id: "{{ fan_targets }}"
-            data:
-              percentage: "{{ spd_normal | int(33) }}"
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
 
       - conditions:
           - condition: template
             value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
         sequence:
-          - action: fan.turn_off
-            target:
-              entity_id: "{{ fan_targets }}"
+          - if:
+              - condition: template
+                value_template: "{{ any_fan_on }}"
+            then:
+              - action: fan.turn_off
+                target:
+                  entity_id: "{{ fan_targets }}"
 
       - conditions:
           - condition: template
             value_template: "{{ (temp_delta | float(0)) >= (thr_fast | float(4.0)) }}"
         sequence:
-          - action: fan.turn_on
-            target:
-              entity_id: "{{ fan_targets }}"
-            data:
-              percentage: "{{ spd_fast | int(67) }}"
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_fast | int(67) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_fast | int(67) }}"
 
       - conditions:
           - condition: template
             value_template: "{{ (temp_delta | float(0)) >= (thr_normal | float(2.0)) }}"
         sequence:
-          - action: fan.turn_on
-            target:
-              entity_id: "{{ fan_targets }}"
-            data:
-              percentage: "{{ spd_normal | int(33) }}"
+          - variables:
+              fans_needing_on: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) != 'on'
+                     or state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_on | count > 0 }}"
+            then:
+              - action: fan.turn_on
+                target:
+                  entity_id: "{{ fans_needing_on }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
 
       - conditions:
           - condition: template
@@ -309,10 +365,24 @@ action:
                  and (temp_delta | float(0)) < (thr_normal | float(2.0))
                  and any_fan_on }}
         sequence:
-          - action: fan.set_percentage
-            target:
-              entity_id: "{{ fan_targets }}"
-            data:
-              percentage: "{{ spd_normal | int(33) }}"
+          - variables:
+              fans_needing_pct: >
+                {% set target_pct = spd_normal | int(33) %}
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
+          - if:
+              - condition: template
+                value_template: "{{ fans_needing_pct | count > 0 }}"
+            then:
+              - action: fan.set_percentage
+                target:
+                  entity_id: "{{ fans_needing_pct }}"
+                data:
+                  percentage: "{{ spd_normal | int(33) }}"
 
     default: []

@@ -39,11 +39,10 @@
   "input.silent_mode_entity.description": "Un input_boolean ou binary_sensor qui active le mode silencieux (ex. TV allumée). Quand il est actif, le ventilateur ne fonctionne qu'au-dessus du seuil de vitesse rapide, à vitesse normale uniquement. Laisser vide pour désactiver cette fonctionnalité.",
 
   "input.eval_interval.name": "Intervalle de réévaluation",
-  "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA, et à chaque changement du thermostat ou du mode silencieux.",
+  "input.eval_interval.description": "Fréquence à laquelle l'automatisation réévalue l'état du ventilateur. Une évaluation immédiate reste déclenchée lors du démarrage de HA et à chaque changement du mode silencieux.",
 
   "trigger.ha_start.alias": "Démarrage de Home Assistant",
   "trigger.automations_reload.alias": "Rechargement des automatisations",
-  "trigger.climate.alias": "État du thermostat modifié",
   "trigger.silent_mode.alias": "Mode silencieux modifié",
   "trigger.tick.alias": "Réévaluation périodique",
 

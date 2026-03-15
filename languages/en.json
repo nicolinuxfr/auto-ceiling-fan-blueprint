@@ -39,11 +39,10 @@
   "input.silent_mode_entity.description": "An input_boolean or binary_sensor that enables silent mode (e.g. TV on). When active, the fan only runs above the fast speed threshold, at normal speed only. Leave empty to disable.",
 
   "input.eval_interval.name": "Re-evaluation interval",
-  "input.eval_interval.description": "How often the automation re-evaluates the fan state. An immediate evaluation is still triggered on HA start, and on every thermostat or silent mode change.",
+  "input.eval_interval.description": "How often the automation re-evaluates the fan state. An immediate evaluation is still triggered on HA start and on every silent mode change.",
 
   "trigger.ha_start.alias": "Home Assistant started",
   "trigger.automations_reload.alias": "Automations reloaded",
-  "trigger.climate.alias": "Thermostat state changed",
   "trigger.silent_mode.alias": "Silent mode changed",
   "trigger.tick.alias": "Periodic re-evaluation",
 
