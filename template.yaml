@@ -435,7 +435,6 @@ action:
         {% set ns = namespace(targets=[]) %}
         {% for fan_id in fan_direction_targets %}
           {% if states(fan_id) == 'on'
-             and state_attr(fan_id, 'direction') not in [none, '', 'unknown', 'unavailable']
              and state_attr(fan_id, 'direction') != fan_direction | trim %}
             {% set ns.targets = ns.targets + [fan_id] %}
           {% endif %}
