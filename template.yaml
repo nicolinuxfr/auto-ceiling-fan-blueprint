@@ -241,13 +241,22 @@ action:
               {{ silent_active
                  and (temp_delta | float(0)) < (thr_fast | float(4.0)) }}
         sequence:
+          - variables:
+              fans_needing_off: >
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) == 'on' %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
           - if:
               - condition: template
-                value_template: "{{ any_fan_on }}"
+                value_template: "{{ fans_needing_off | count > 0 }}"
             then:
               - action: fan.turn_off
                 target:
-                  entity_id: "{{ fan_targets }}"
+                  entity_id: "{{ fans_needing_off }}"
 
       - conditions:
           - condition: template
@@ -280,13 +289,22 @@ action:
           - condition: template
             value_template: "{{ (temp_delta | float(0)) < (thr_off | float(1.0)) }}"
         sequence:
+          - variables:
+              fans_needing_off: >
+                {% set ns = namespace(targets=[]) %}
+                {% for fan_id in fan_targets %}
+                  {% if states(fan_id) == 'on' %}
+                    {% set ns.targets = ns.targets + [fan_id] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.targets }}
           - if:
               - condition: template
-                value_template: "{{ any_fan_on }}"
+                value_template: "{{ fans_needing_off | count > 0 }}"
             then:
               - action: fan.turn_off
                 target:
-                  entity_id: "{{ fan_targets }}"
+                  entity_id: "{{ fans_needing_off }}"
 
       - conditions:
           - condition: template
@@ -350,7 +368,8 @@ action:
                 {% set target_pct = spd_normal | int(33) %}
                 {% set ns = namespace(targets=[]) %}
                 {% for fan_id in fan_targets %}
-                  {% if state_attr(fan_id, 'percentage') | int(0) != target_pct %}
+                  {% if states(fan_id) == 'on'
+                     and state_attr(fan_id, 'percentage') | int(0) != target_pct %}
                     {% set ns.targets = ns.targets + [fan_id] %}
                   {% endif %}
                 {% endfor %}
