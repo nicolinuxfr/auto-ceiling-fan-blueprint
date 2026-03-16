@@ -234,6 +234,50 @@ condition:
     value_template: "{{ delta_available }}"
 
 action:
+  - variables:
+      fan_command_needed: >
+        {% set delta = temp_delta | float(0) %}
+        {% set off_t = thr_off | float(1.0) %}
+        {% set normal_t = thr_normal | float(2.0) %}
+        {% set fast_t = thr_fast | float(4.0) %}
+        {% set spd_n = spd_normal | int(33) %}
+        {% set spd_f = spd_fast | int(67) %}
+        {% set ns = namespace(result=false) %}
+        {% if silent_active and delta < fast_t %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) == 'on' %}{% set ns.result = true %}{% endif %}
+          {% endfor %}
+        {% elif silent_active and delta >= fast_t %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) != 'on' or state_attr(fan_id, 'percentage') | int(0) != spd_n %}
+              {% set ns.result = true %}
+            {% endif %}
+          {% endfor %}
+        {% elif delta < off_t %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) == 'on' %}{% set ns.result = true %}{% endif %}
+          {% endfor %}
+        {% elif delta >= fast_t %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) != 'on' or state_attr(fan_id, 'percentage') | int(0) != spd_f %}
+              {% set ns.result = true %}
+            {% endif %}
+          {% endfor %}
+        {% elif delta >= normal_t %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) != 'on' or state_attr(fan_id, 'percentage') | int(0) != spd_n %}
+              {% set ns.result = true %}
+            {% endif %}
+          {% endfor %}
+        {% elif delta >= off_t and any_fan_on %}
+          {% for fan_id in fan_targets %}
+            {% if states(fan_id) == 'on' and state_attr(fan_id, 'percentage') | int(0) != spd_n %}
+              {% set ns.result = true %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {{ ns.result }}
+
   - choose:
       - conditions:
           - condition: template
@@ -391,6 +435,7 @@ action:
         {% set ns = namespace(targets=[]) %}
         {% for fan_id in fan_direction_targets %}
           {% if states(fan_id) == 'on'
+             and state_attr(fan_id, 'direction') not in [none, '', 'unknown', 'unavailable']
              and state_attr(fan_id, 'direction') != fan_direction | trim %}
             {% set ns.targets = ns.targets + [fan_id] %}
           {% endif %}
@@ -399,7 +444,9 @@ action:
 
   - if:
       - condition: template
-        value_template: "{{ fans_needing_direction | count > 0 }}"
+        value_template: >
+          {{ fans_needing_direction | count > 0
+             and not (fan_command_needed | bool(false)) }}
     then:
       - action: fan.set_direction
         target:

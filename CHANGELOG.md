@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.3.7
+
+- (Hopefully) fix the annoying Tuya fans by sending only one command each time instead of two. 
+
 ## 2026.3.6
 
 - Only send command to the fan if it's state is different (should help with crappy Tuya devices, ask me how I know…) ;
