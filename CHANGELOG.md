@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.3.8
+
+- Always set the correct direction for the fan (useful since the fan will go back to it's default after electric disconnect).
+
 ## 2026.3.7
 
 - (Hopefully) fix the annoying Tuya fans by sending only one command each time instead of two. 

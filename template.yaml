@@ -430,6 +430,13 @@ action:
 
     default: []
 
+  - if:
+      - condition: template
+        value_template: "{{ fan_command_needed | bool(false) }}"
+    then:
+      - delay:
+          seconds: 3
+
   - variables:
       fans_needing_direction: >
         {% set ns = namespace(targets=[]) %}
@@ -443,9 +450,7 @@ action:
 
   - if:
       - condition: template
-        value_template: >
-          {{ fans_needing_direction | count > 0
-             and not (fan_command_needed | bool(false)) }}
+        value_template: "{{ fans_needing_direction | count > 0 }}"
     then:
       - action: fan.set_direction
         target:
