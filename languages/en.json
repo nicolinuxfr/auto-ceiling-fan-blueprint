@@ -12,7 +12,7 @@
   "input.direction_section.name": "Rotation direction",
 
   "input.climate_entity.name": "Thermostat entity (optional)",
-  "input.climate_entity.description": "A climate entity used to determine fan rotation direction. When the thermostat is actively heating, the fan rotates in reverse; otherwise it rotates forward. If not set, the direction is determined automatically by season based on your Home Assistant location.",
+  "input.climate_entity.description": "A climate entity used to determine fan rotation direction. When the thermostat is actively heating, the fan rotates in reverse; when cooling, it rotates forward; when off or in auto mode, it falls back to season-based detection. If not set, the direction is always determined by season (reverse except in summer).",
 
   "input.threshold_settings.name": "Temperature thresholds",
 

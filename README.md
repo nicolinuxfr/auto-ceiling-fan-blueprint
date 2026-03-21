@@ -13,8 +13,8 @@ This blueprint automatically controls one or more ceiling fans based on the temp
 
 1. The blueprint calculates a temperature delta between ceiling and ambient sensors.
 2. It determines the fan rotation direction:
-   - **Season-based (default)**: when no thermostat entity is set, direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: November–March = reverse; southern hemisphere: May–September = reverse).
-   - **Thermostat-based**: when a climate entity is set, direction is based on the thermostat's current action. When actively heating, the fan rotates in reverse; otherwise it rotates forward.
+   - **Season-based (default)**: when no thermostat entity is set, direction is based on the current season, automatically detected from your Home Assistant location (northern hemisphere: only June–August = forward, all other months = reverse; southern hemisphere: only December–February = forward).
+   - **Thermostat-based**: when a climate entity is set, direction is based on the thermostat's current state and action. When actively heating, the fan rotates in reverse; when cooling, it rotates forward; when off or in auto mode, it falls back to season-based detection.
 3. It adjusts fan speed based on configurable thresholds:
    - Delta below **off threshold** (default 1.0°C): fan turns off.
    - Delta in **hysteresis zone** (off → normal threshold): fan stays at **normal speed** if already running, does not start.

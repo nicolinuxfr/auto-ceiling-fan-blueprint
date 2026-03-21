@@ -12,7 +12,7 @@
   "input.direction_section.name": "Sens de rotation",
 
   "input.climate_entity.name": "Entité thermostat (optionnel)",
-  "input.climate_entity.description": "Une entité climate utilisée pour déterminer le sens de rotation. Quand le thermostat chauffe activement, le ventilateur tourne en sens inverse ; sinon il tourne en sens normal. Si non renseigné, le sens est déterminé automatiquement selon la saison.",
+  "input.climate_entity.description": "Une entité climate utilisée pour déterminer le sens de rotation. Quand le thermostat chauffe activement, le ventilateur tourne en sens inverse ; en refroidissement, il tourne en sens normal ; quand le thermostat est éteint ou en mode auto, le sens est déterminé par la saison. Si non renseigné, le sens est toujours basé sur la saison (inverse sauf en été).",
 
   "input.threshold_settings.name": "Seuils de température",
 

@@ -13,8 +13,8 @@ Ce blueprint contrôle automatiquement un ou plusieurs ventilateurs de plafond e
 
 1. Le blueprint calcule un delta de température entre les capteurs plafond et ambiance.
 2. Il détermine le sens de rotation du ventilateur :
-   - **Par saison (par défaut)** : quand aucun thermostat n'est renseigné, le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : novembre–mars = inversé ; hémisphère sud : mai–septembre = inversé).
-   - **Par thermostat** : quand une entité climate est renseignée, le sens est basé sur l'action en cours du thermostat. En mode chauffage actif, le ventilateur tourne en sens inverse ; sinon il tourne en sens normal.
+   - **Par saison (par défaut)** : quand aucun thermostat n'est renseigné, le sens est basé sur la saison courante, détectée automatiquement depuis la localisation de votre instance Home Assistant (hémisphère nord : seuls juin–août = sens normal, tous les autres mois = inversé ; hémisphère sud : seuls décembre–février = sens normal).
+   - **Par thermostat** : quand une entité climate est renseignée, le sens est basé sur l'état et l'action en cours du thermostat. En mode chauffage actif, le ventilateur tourne en sens inverse ; en refroidissement, il tourne en sens normal ; quand le thermostat est éteint ou en mode auto, le sens est déterminé par la saison.
 3. Il ajuste la vitesse du ventilateur selon des seuils configurables :
    - Delta sous le **seuil d'arrêt** (défaut 1.0°C) : ventilateur arrêté.
    - Delta dans la **zone d'hystérésis** (seuil arrêt → seuil normal) : le ventilateur reste à **vitesse normale** s'il tourne déjà, ne démarre pas.

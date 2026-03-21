@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.3.9
+
+- When the thermostat is off, use season-based detection (was assuming cooling before) ;
+- Season-based direction : only forward in summer, reverse otherwise (less annoying if wrong).
+
 ## 2026.3.8
 
 - Always set the correct direction for the fan (useful since the fan will go back to it's default after electric disconnect).
